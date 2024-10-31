@@ -1,0 +1,17 @@
+C:\Users\ekre4\RiderProjects\Musical1C\ConsoleView\bin\Debug\net8.0\ConsoleView.deps.json
+C:\Users\ekre4\RiderProjects\Musical1C\ConsoleView\bin\Debug\net8.0\ConsoleView.dll
+C:\Users\ekre4\RiderProjects\Musical1C\ConsoleView\bin\Debug\net8.0\ConsoleView.pdb
+C:\Users\ekre4\RiderProjects\Musical1C\ConsoleView\bin\Debug\net8.0\Presenter.dll
+C:\Users\ekre4\RiderProjects\Musical1C\ConsoleView\bin\Debug\net8.0\Storage.dll
+C:\Users\ekre4\RiderProjects\Musical1C\ConsoleView\bin\Debug\net8.0\Presenter.pdb
+C:\Users\ekre4\RiderProjects\Musical1C\ConsoleView\bin\Debug\net8.0\Storage.pdb
+C:\Users\ekre4\RiderProjects\Musical1C\ConsoleView\obj\Debug\net8.0\ConsoleView.csproj.AssemblyReference.cache
+C:\Users\ekre4\RiderProjects\Musical1C\ConsoleView\obj\Debug\net8.0\ConsoleView.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\ekre4\RiderProjects\Musical1C\ConsoleView\obj\Debug\net8.0\ConsoleView.AssemblyInfoInputs.cache
+C:\Users\ekre4\RiderProjects\Musical1C\ConsoleView\obj\Debug\net8.0\ConsoleView.AssemblyInfo.cs
+C:\Users\ekre4\RiderProjects\Musical1C\ConsoleView\obj\Debug\net8.0\ConsoleView.csproj.CoreCompileInputs.cache
+C:\Users\ekre4\RiderProjects\Musical1C\ConsoleView\obj\Debug\net8.0\ConsoleV.40BA7453.Up2Date
+C:\Users\ekre4\RiderProjects\Musical1C\ConsoleView\obj\Debug\net8.0\ConsoleView.dll
+C:\Users\ekre4\RiderProjects\Musical1C\ConsoleView\obj\Debug\net8.0\refint\ConsoleView.dll
+C:\Users\ekre4\RiderProjects\Musical1C\ConsoleView\obj\Debug\net8.0\ConsoleView.pdb
+C:\Users\ekre4\RiderProjects\Musical1C\ConsoleView\obj\Debug\net8.0\ref\ConsoleView.dll

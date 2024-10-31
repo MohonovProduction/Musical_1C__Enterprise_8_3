@@ -1,0 +1,11 @@
+C:\Users\ekre4\RiderProjects\Musical1C\Storage\bin\Debug\net8.0\Storage.deps.json
+C:\Users\ekre4\RiderProjects\Musical1C\Storage\bin\Debug\net8.0\Storage.dll
+C:\Users\ekre4\RiderProjects\Musical1C\Storage\bin\Debug\net8.0\Storage.pdb
+C:\Users\ekre4\RiderProjects\Musical1C\Storage\obj\Debug\net8.0\Storage.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\ekre4\RiderProjects\Musical1C\Storage\obj\Debug\net8.0\Storage.AssemblyInfoInputs.cache
+C:\Users\ekre4\RiderProjects\Musical1C\Storage\obj\Debug\net8.0\Storage.AssemblyInfo.cs
+C:\Users\ekre4\RiderProjects\Musical1C\Storage\obj\Debug\net8.0\Storage.csproj.CoreCompileInputs.cache
+C:\Users\ekre4\RiderProjects\Musical1C\Storage\obj\Debug\net8.0\Storage.dll
+C:\Users\ekre4\RiderProjects\Musical1C\Storage\obj\Debug\net8.0\refint\Storage.dll
+C:\Users\ekre4\RiderProjects\Musical1C\Storage\obj\Debug\net8.0\Storage.pdb
+C:\Users\ekre4\RiderProjects\Musical1C\Storage\obj\Debug\net8.0\ref\Storage.dll

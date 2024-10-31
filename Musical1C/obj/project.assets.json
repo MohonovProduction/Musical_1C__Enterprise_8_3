@@ -1,0 +1,133 @@
+{
+  "version": 3,
+  "targets": {
+    "net8.0": {
+      "ConsoleView/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v8.0",
+        "dependencies": {
+          "Presenter": "1.0.0",
+          "Storage": "1.0.0"
+        },
+        "compile": {
+          "bin/placeholder/ConsoleView.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/ConsoleView.dll": {}
+        }
+      },
+      "Presenter/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v8.0",
+        "dependencies": {
+          "Storage": "1.0.0"
+        },
+        "compile": {
+          "bin/placeholder/Presenter.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/Presenter.dll": {}
+        }
+      },
+      "Storage/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v8.0",
+        "compile": {
+          "bin/placeholder/Storage.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/Storage.dll": {}
+        }
+      }
+    }
+  },
+  "libraries": {
+    "ConsoleView/1.0.0": {
+      "type": "project",
+      "path": "../ConsoleView/ConsoleView.csproj",
+      "msbuildProject": "../ConsoleView/ConsoleView.csproj"
+    },
+    "Presenter/1.0.0": {
+      "type": "project",
+      "path": "../Presenter/Presenter.csproj",
+      "msbuildProject": "../Presenter/Presenter.csproj"
+    },
+    "Storage/1.0.0": {
+      "type": "project",
+      "path": "../Storage/Storage.csproj",
+      "msbuildProject": "../Storage/Storage.csproj"
+    }
+  },
+  "projectFileDependencyGroups": {
+    "net8.0": [
+      "ConsoleView >= 1.0.0"
+    ]
+  },
+  "packageFolders": {
+    "C:\\Users\\ekre4\\.nuget\\packages\\": {}
+  },
+  "project": {
+    "version": "1.0.0",
+    "restore": {
+      "projectUniqueName": "C:\\Users\\ekre4\\RiderProjects\\Musical1C\\Musical1C\\Musical1C.csproj",
+      "projectName": "Musical1C",
+      "projectPath": "C:\\Users\\ekre4\\RiderProjects\\Musical1C\\Musical1C\\Musical1C.csproj",
+      "packagesPath": "C:\\Users\\ekre4\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\ekre4\\RiderProjects\\Musical1C\\Musical1C\\obj\\",
+      "projectStyle": "PackageReference",
+      "configFilePaths": [
+        "C:\\Users\\ekre4\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+      ],
+      "originalTargetFrameworks": [
+        "net8.0"
+      ],
+      "sources": {
+        "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+        "https://api.nuget.org/v3/index.json": {}
+      },
+      "frameworks": {
+        "net8.0": {
+          "targetAlias": "net8.0",
+          "projectReferences": {
+            "C:\\Users\\ekre4\\RiderProjects\\Musical1C\\ConsoleView\\ConsoleView.csproj": {
+              "projectPath": "C:\\Users\\ekre4\\RiderProjects\\Musical1C\\ConsoleView\\ConsoleView.csproj"
+            }
+          }
+        }
+      },
+      "warningProperties": {
+        "warnAsError": [
+          "NU1605"
+        ]
+      },
+      "restoreAuditProperties": {
+        "enableAudit": "true",
+        "auditLevel": "low",
+        "auditMode": "direct"
+      }
+    },
+    "frameworks": {
+      "net8.0": {
+        "targetAlias": "net8.0",
+        "imports": [
+          "net461",
+          "net462",
+          "net47",
+          "net471",
+          "net472",
+          "net48",
+          "net481"
+        ],
+        "assetTargetFallback": true,
+        "warn": true,
+        "frameworkReferences": {
+          "Microsoft.NETCore.App": {
+            "privateAssets": "all"
+          }
+        },
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.400/PortableRuntimeIdentifierGraph.json"
+      }
+    }
+  }
+}
