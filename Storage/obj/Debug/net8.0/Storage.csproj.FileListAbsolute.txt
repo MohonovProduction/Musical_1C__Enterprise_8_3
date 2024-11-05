@@ -9,3 +9,15 @@ C:\Users\ekre4\RiderProjects\Musical1C\Storage\obj\Debug\net8.0\Storage.dll
 C:\Users\ekre4\RiderProjects\Musical1C\Storage\obj\Debug\net8.0\refint\Storage.dll
 C:\Users\ekre4\RiderProjects\Musical1C\Storage\obj\Debug\net8.0\Storage.pdb
 C:\Users\ekre4\RiderProjects\Musical1C\Storage\obj\Debug\net8.0\ref\Storage.dll
+C:\Users\mihai\Documents\2_UNIVERSITY\Course_2\Programming\musical1C\Storage\bin\Debug\net8.0\Storage.deps.json
+C:\Users\mihai\Documents\2_UNIVERSITY\Course_2\Programming\musical1C\Storage\bin\Debug\net8.0\Storage.dll
+C:\Users\mihai\Documents\2_UNIVERSITY\Course_2\Programming\musical1C\Storage\bin\Debug\net8.0\Storage.pdb
+C:\Users\mihai\Documents\2_UNIVERSITY\Course_2\Programming\musical1C\Storage\obj\Debug\net8.0\Storage.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\mihai\Documents\2_UNIVERSITY\Course_2\Programming\musical1C\Storage\obj\Debug\net8.0\Storage.AssemblyInfoInputs.cache
+C:\Users\mihai\Documents\2_UNIVERSITY\Course_2\Programming\musical1C\Storage\obj\Debug\net8.0\Storage.AssemblyInfo.cs
+C:\Users\mihai\Documents\2_UNIVERSITY\Course_2\Programming\musical1C\Storage\obj\Debug\net8.0\Storage.csproj.CoreCompileInputs.cache
+C:\Users\mihai\Documents\2_UNIVERSITY\Course_2\Programming\musical1C\Storage\obj\Debug\net8.0\Storage.sourcelink.json
+C:\Users\mihai\Documents\2_UNIVERSITY\Course_2\Programming\musical1C\Storage\obj\Debug\net8.0\Storage.dll
+C:\Users\mihai\Documents\2_UNIVERSITY\Course_2\Programming\musical1C\Storage\obj\Debug\net8.0\refint\Storage.dll
+C:\Users\mihai\Documents\2_UNIVERSITY\Course_2\Programming\musical1C\Storage\obj\Debug\net8.0\Storage.pdb
+C:\Users\mihai\Documents\2_UNIVERSITY\Course_2\Programming\musical1C\Storage\obj\Debug\net8.0\ref\Storage.dll

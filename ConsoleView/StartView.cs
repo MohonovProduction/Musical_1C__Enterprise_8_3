@@ -47,6 +47,19 @@ public class StartView
         {
             Console.WriteLine($"Название: {concert.Name} Дата: {concert.Date} Тип: {concert.Type}");
         }
+
+        var menuActions = new Dictionary<int, Func<Task>>()
+        {
+            { 1, async () => await RunAsync() },
+        };
+
+        var menuLabels = new Dictionary<int, string>()
+        {
+            { 1, "Назад" },
+        };
+
+        var menuView = new Menu(menuActions, menuLabels);
+        await menuView.ExecuteMenuChoice();
     }
 
     private async Task FindMusician()
