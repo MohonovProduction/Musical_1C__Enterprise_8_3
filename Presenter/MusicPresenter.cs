@@ -7,8 +7,17 @@ namespace Presenter;
 
 public class MusicPresenter : IMusicPresenter
 {
-    private readonly MusicStorage _musicStorage = new MusicStorage("../../data/Music.json", "Music.json");
-
+    private readonly IMusicStorage _musicStorage;
+    
+    public MusicPresenter(IMusicStorage musicStorage)
+    {
+        _musicStorage = musicStorage;
+    }
+    public MusicPresenter()
+    {
+        _musicStorage = new MusicStorage("../../data/Music.json", "Music.json");
+    }
+    
     public async Task<Music> AddMusicAsync(string name, string author, CancellationToken token)
     {
         var id = Guid.NewGuid();

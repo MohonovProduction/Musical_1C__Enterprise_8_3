@@ -8,6 +8,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Presenter", "Presenter\Pres
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleView", "ConsoleView\ConsoleView.csproj", "{2242EA6F-F1AE-49F3-90B5-09C20E5A26A7}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Musical1C.Tests", "Musical1C.Tests\Musical1C.Tests.csproj", "{75426457-5666-4535-99DD-07B67E6E43EB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -30,5 +32,9 @@ Global
 		{2242EA6F-F1AE-49F3-90B5-09C20E5A26A7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2242EA6F-F1AE-49F3-90B5-09C20E5A26A7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2242EA6F-F1AE-49F3-90B5-09C20E5A26A7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{75426457-5666-4535-99DD-07B67E6E43EB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{75426457-5666-4535-99DD-07B67E6E43EB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{75426457-5666-4535-99DD-07B67E6E43EB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{75426457-5666-4535-99DD-07B67E6E43EB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
