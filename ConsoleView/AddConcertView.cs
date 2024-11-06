@@ -1,10 +1,5 @@
 ﻿using Presenter;
 using Storage;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace ConsoleView;
 
@@ -13,7 +8,7 @@ public class AddConcertView
     private readonly ConcertPresenter _concertPresenter = new ConcertPresenter();
     private readonly MusicianPresenter _musicianPresenter = new MusicianPresenter();
     private readonly MusicPresenter _musicPresenter = new MusicPresenter();
-    private readonly StartView _startView = new StartView();
+    private readonly StartView _StartView = new StartView();
     
     public async Task NewConcert()
     {
@@ -24,7 +19,7 @@ public class AddConcertView
             { 3, async () => await AddMusiciansToConcertAsync() },
             { 4, async () => await AddDateToConcertAsync() },
             { 5, async () => await SaveConcertAsync() },
-            { 6, async () => await _startView.RunAsync() },
+            { 6, async () => await _StartView.RunAsync() },
         };
 
         var menuLabels = new Dictionary<int, string>()
@@ -237,6 +232,6 @@ public class AddConcertView
             Console.WriteLine("Название концерта не может быть пустым.");
         }
 
-        await _startView.RunAsync();
+        await _StartView.RunAsync();
     }
 }
