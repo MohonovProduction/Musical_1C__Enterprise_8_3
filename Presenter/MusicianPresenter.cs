@@ -7,7 +7,16 @@ namespace Presenter;
 
 public class MusicianPresenter : IMusicianPresenter
 {
-    private readonly MusicianStorage _musicianStorage = new MusicianStorage("../../data/musicians.json", "musicians.json");
+    private readonly IMusicianStorage _musicianStorage;
+    
+    public MusicianPresenter(IMusicianStorage musicianStorage)
+    {
+        _musicianStorage = musicianStorage;
+    }
+    public MusicianPresenter()
+    {
+        _musicianStorage = new MusicianStorage("../../data/musicians.json", "musicians.json");
+    }
     
     public async Task<Musician> AddMusicianAsync(string name, string lastName, string surname, List<Instrument> instruments, CancellationToken token)
     {

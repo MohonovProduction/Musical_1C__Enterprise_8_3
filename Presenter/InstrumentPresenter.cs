@@ -4,8 +4,19 @@ namespace Presenter;
 
 public class InstrumentPresenter : IInstrumentPresenter
 {
-    InstrumentStorage _instrumentStorage = new InstrumentStorage("../../data/Instruments.json","Instruments.json");
-    public async Task  AddInstrumentAsync(string name, CancellationToken token)
+    private readonly IInstrumentStorage _instrumentStorage;
+
+    public InstrumentPresenter(IInstrumentStorage instrumentStorage)
+    {
+        _instrumentStorage = instrumentStorage;
+    }
+
+    public InstrumentPresenter()
+    {
+        _instrumentStorage = new InstrumentStorage("../../data/Instruments.json", "Instruments.json");
+    }
+    
+    public async Task AddInstrumentAsync(string name, CancellationToken token)
     {
         var id = Guid.NewGuid();
         var instrument = new Instrument(id, name);

@@ -13,6 +13,11 @@ namespace Storage
             _storageFile = new StorageFile<Instrument>(filePath, tableName);
         }
 
+        public InstrumentStorage()
+        {
+            _storageFile = new StorageFile<Instrument>("../../data/Instruments.json", "Instruments.json");
+        }
+
         public async Task AddInstrumentAsync(Instrument instrument, CancellationToken token)
         {
             await _storageFile.AddAsync(instrument, token);

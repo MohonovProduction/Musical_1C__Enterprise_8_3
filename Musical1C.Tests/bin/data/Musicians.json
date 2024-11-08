@@ -3,4 +3,7 @@
 musicians.json:
 {"Id":"299db957-adf4-4613-9d38-3a76df82fbcc","Name":"\u041C\u0438\u0445\u0430\u0438\u043B","LastName":"\u041C\u043E\u0445\u043E\u043D\u043E\u0432","Surname":"\u0410\u043D\u0434\u0440\u0435\u0435\u0432\u0438\u0447","Instruments":[{"Id":"fc6ff985-2ada-4250-a871-0c25423ca003","Name":"\u0413\u0438\u0442\u0430\u0440\u0430"},{"Id":"842f8d67-9718-4449-95d0-4b104ed949e4","Name":"\u0431\u0443\u0431\u0435\u043D"},{"Id":"5dc7fe9a-5c20-4839-95f0-d89a20191ca1","Name":"\u0431\u0430\u043B\u0430\u043B\u0430\u0439\u043A\u0430"}]}
 {"Id":"2cf38045-c7fc-435d-beb2-3014407ec056","Name":"\u0422\u0435\u0441\u0442 2","LastName":"\u0422\u0435\u0441\u0442 2","Surname":"\u0422\u0435\u0441\u0442 2","Instruments":[{"Id":"1e2b4582-7650-4d30-8e4f-7664e9070cd7","Name":"\u0420\u044B\u0431\u0430"},{"Id":"b7f387be-e6b1-4af6-93a2-23c249a91df6","Name":"\u043F\u0438\u0432\u043E"},{"Id":"0577c1c2-b7cf-44c5-91cc-d866ece45dd8","Name":"\u0441\u0430\u043C\u043E\u0432\u0430\u0440"}]}
+{"Id":"b3359029-d809-40fc-9dbb-bdaa7c2e678a","Name":"John","LastName":"Doe","Surname":"Smith","Instruments":[{"Id":"ebe5dcf2-7492-47a8-9ae5-880989c9c2ab","Name":"Guitar"}]}
+{"Id":"e6fc5b89-e1e9-4324-8d18-2db69f415ab8","Name":"John","LastName":"Doe","Surname":"Smith","Instruments":[{"Id":"adbd7eac-5dab-4885-8081-47056d2e4169","Name":"Guitar"}]}
+{"Id":"692a687a-b082-40f4-85a3-1887181a870b","Name":"John","LastName":"Doe","Surname":"Smith","Instruments":[{"Id":"8c6e394c-d422-44f3-967f-fe0096197afe","Name":"Guitar"}]}
 
