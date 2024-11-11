@@ -6,14 +6,14 @@ namespace Storage
 {
     public class InstrumentStorage : IInstrumentStorage
     {
-        private readonly StorageFile<Instrument> _storageFile;
+        public IStorageFile<Instrument> _storageFile;
 
         public InstrumentStorage(string filePath, string tableName)
         {
             _storageFile = new StorageFile<Instrument>(filePath, tableName);
         }
 
-        public InstrumentStorage()
+        public InstrumentStorage(IStorageFile<Instrument> filePath)
         {
             _storageFile = new StorageFile<Instrument>("../../data/Instruments.json", "Instruments.json");
         }
