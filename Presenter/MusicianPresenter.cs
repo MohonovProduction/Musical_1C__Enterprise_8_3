@@ -8,6 +8,8 @@ namespace Presenter;
 public class MusicianPresenter : IMusicianPresenter
 {
     private readonly IMusicianStorage _musicianStorage;
+    private readonly InstrumentPresenter _instrumentPresenter = new InstrumentPresenter();
+    private readonly MusicianInstrumentPresenter _musicianInstrumentPresenter = new MusicianInstrumentPresenter();
     
     public MusicianPresenter(IMusicianStorage musicianStorage)
     {
@@ -15,14 +17,21 @@ public class MusicianPresenter : IMusicianPresenter
     }
     public MusicianPresenter()
     {
-        _musicianStorage = new MusicianStorage("../../data/musicians.json", "musicians.json");
+        _musicianStorage = new MusicianStorage("Host=localhost;Port=5432;Username=postgres;Password=1111;Database=musical1c", "musician");
     }
     
     public async Task<Musician> AddMusicianAsync(string name, string lastName, string surname, List<Instrument> instruments, CancellationToken token)
     {
         var id = Guid.NewGuid();
-        var musician = new Musician(id, name, lastName, surname, instruments);
+        var musician = new Musician(id, name, lastName, surname);
         await _musicianStorage.AddMusicianAsync(musician, token);
+        
+        foreach (var instrument in instruments)
+        {
+            await _instrumentPresenter.AddInstrumentAsync(instrument.Id, instrument.Name, token);
+            await _musicianInstrumentPresenter.AddMusicianInstrumentAsync(musician.Id, instrument.Id, token);
+        }
+        
         return musician; // Возвращаем добавленного музыканта
     }
 

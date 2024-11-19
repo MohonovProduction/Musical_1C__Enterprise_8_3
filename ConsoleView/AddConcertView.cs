@@ -195,7 +195,7 @@ public class AddConcertView
         Console.Write("Введите дату концерта (формат: ГГГГ-ММ-ДД): ");
         if (DateTime.TryParse(Console.ReadLine(), out var concertDate))
         {
-            _concertPresenter.SetConcertDate(concertDate);
+            _concertPresenter.SetConcertDate(concertDate.ToString());
             Console.WriteLine("Дата концерта успешно добавлена.");
         }
         else

@@ -21,3 +21,4 @@ C:\Users\mihai\Documents\2_UNIVERSITY\Course_2\Programming\musical1C\Storage\obj
 C:\Users\mihai\Documents\2_UNIVERSITY\Course_2\Programming\musical1C\Storage\obj\Debug\net8.0\refint\Storage.dll
 C:\Users\mihai\Documents\2_UNIVERSITY\Course_2\Programming\musical1C\Storage\obj\Debug\net8.0\Storage.pdb
 C:\Users\mihai\Documents\2_UNIVERSITY\Course_2\Programming\musical1C\Storage\obj\Debug\net8.0\ref\Storage.dll
+C:\Users\mihai\Documents\2_UNIVERSITY\Course_2\Programming\musical1C\Storage\obj\Debug\net8.0\Storage.csproj.AssemblyReference.cache

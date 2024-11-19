@@ -13,12 +13,11 @@ public class InstrumentPresenter : IInstrumentPresenter
 
     public InstrumentPresenter()
     {
-        _instrumentStorage = new InstrumentStorage("../../data/Instruments.json", "Instruments.json");
+        _instrumentStorage = new InstrumentStorage("Host=localhost;Port=5432;Username=postgres;Password=1111;Database=musical1c", "instrument");
     }
     
-    public async Task AddInstrumentAsync(string name, CancellationToken token)
+    public async Task AddInstrumentAsync(Guid id, string name, CancellationToken token)
     {
-        var id = Guid.NewGuid();
         var instrument = new Instrument(id, name);
         await _instrumentStorage.AddInstrumentAsync(instrument, token);
     }

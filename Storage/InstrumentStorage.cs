@@ -6,33 +6,35 @@ namespace Storage
 {
     public class InstrumentStorage : IInstrumentStorage
     {
-        public IStorageFile<Instrument> _storageFile;
+        private readonly StorageDataBase<Instrument> _storageDataBase;
 
-        public InstrumentStorage(string filePath, string tableName)
+        public InstrumentStorage(string connectionString, string tableName)
         {
-            _storageFile = new StorageFile<Instrument>(filePath, tableName);
+            _storageDataBase = new StorageDataBase<Instrument>(connectionString, tableName);
         }
 
-        public InstrumentStorage(IStorageFile<Instrument> filePath)
+        public InstrumentStorage(StorageDataBase<Instrument> storageDataBase)
         {
-            _storageFile = new StorageFile<Instrument>("../../data/Instruments.json", "Instruments.json");
+            _storageDataBase = storageDataBase;
         }
 
         public async Task AddInstrumentAsync(Instrument instrument, CancellationToken token)
         {
-            await _storageFile.AddAsync(instrument, token);
+            token.ThrowIfCancellationRequested();
+            await _storageDataBase.AddAsync(instrument, token);
         }
 
         public async Task DeleteInstrumentAsync(Instrument instrument, CancellationToken token)
         {
+            token.ThrowIfCancellationRequested();
             // Удаление на основе ID или других уникальных полей инструмента
-            await _storageFile.DeleteAsync(i => i.Id == instrument.Id, token);
+            await _storageDataBase.DeleteAsync("id = @Id", new { Id = instrument.Id }, token);
         }
 
         public async Task<IReadOnlyCollection<Instrument>> GetInstrumentsAsync(CancellationToken token)
         {
-            var instruments = await _storageFile.GetAllAsync(token);
-            return instruments.AsReadOnly();
+            token.ThrowIfCancellationRequested();
+            return await _storageDataBase.GetListAsync("", null, token); // Получаем все записи
         }
     }
 }

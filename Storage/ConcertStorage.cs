@@ -6,28 +6,30 @@ namespace Storage
 {
     public class ConcertStorage : IConcertStorage
     {
-        private readonly StorageFile<Concert> _storageFile;
+        private readonly StorageDataBase<Concert> _storageDataBase;
 
-        public ConcertStorage(string filePath, string tableName)
+        public ConcertStorage(string connectionString, string tableName)
         {
-            _storageFile = new StorageFile<Concert>(filePath, tableName);
+            _storageDataBase = new StorageDataBase<Concert>(connectionString, tableName);
         }
 
         public async Task AddConcertAsync(Concert concert, CancellationToken token)
         {
-            await _storageFile.AddAsync(concert, token);
+            token.ThrowIfCancellationRequested();
+            await _storageDataBase.AddAsync(concert, token);
         }
 
         public async Task DeleteConcertAsync(Concert concert, CancellationToken token)
         {
+            token.ThrowIfCancellationRequested();
             // Удаление на основе ID или других уникальных полей концерта
-            await _storageFile.DeleteAsync(c => c.Id == concert.Id, token);
+            await _storageDataBase.DeleteAsync("id = @Id", new { Id = concert.Id }, token);
         }
 
-        public async Task<IReadOnlyCollection<Concert>> GetAllConcerts(CancellationToken token)
+        public async Task<IReadOnlyCollection<Concert>> GetAllConcertsAsync(CancellationToken token)
         {
-            var concerts = await _storageFile.GetAllAsync(token);
-            return concerts.AsReadOnly();
+            token.ThrowIfCancellationRequested();
+            return await _storageDataBase.GetListAsync("", null, token); // Получаем все записи
         }
     }
 }

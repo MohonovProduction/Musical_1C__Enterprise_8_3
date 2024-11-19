@@ -15,7 +15,7 @@ public class MusicPresenter : IMusicPresenter
     }
     public MusicPresenter()
     {
-        _musicStorage = new MusicStorage("../../data/Music.json", "Music.json");
+        _musicStorage = new MusicStorage("Host=localhost;Port=5432;Username=postgres;Password=1111;Database=musical1c", "sound");
     }
     
     public async Task<Music> AddMusicAsync(string name, string author, CancellationToken token)

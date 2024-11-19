@@ -9,15 +9,32 @@ namespace Presenter;
 
 public class ConcertPresenter : IConcertPresenter
 {
-    private readonly ConcertStorage _concertStorage = new ConcertStorage("../../data/Concerts.json", "Concerts");
+    private readonly MusicianOnConcertPresenter _musicianOnConcertPresenter = new MusicianOnConcertPresenter();
+    private readonly SoundOnConcertPresenter _soundOnConcertPresenter = new SoundOnConcertPresenter();
+    private readonly ConcertStorage _concertStorage = new ConcertStorage("Host=localhost;Port=5432;Username=postgres;Password=1111;Database=musical1c", "concert");
     private ConcertBuilder _concertBuilder = new ConcertBuilder();
 
     public async Task AddConcertAsync(string name,CancellationToken token)
     {
-        var concert = _concertBuilder.BuildConcert(name);
-        if (concert != null)
+        var fullConcert = _concertBuilder.BuildConcert(name);
+        
+        if (fullConcert != null)
         {
+            var concert = new Concert(Guid.NewGuid(), fullConcert.Name, fullConcert.Type, fullConcert.Date);
             await _concertStorage.AddConcertAsync(concert, token);
+
+            foreach (var music in fullConcert.Music)
+            {
+                token = new CancellationToken();
+                await _soundOnConcertPresenter.AddSoundOnConcertAsync(concert.Id, music.Id, token);
+            }
+
+            foreach (var musician in fullConcert.Musicians)
+            {
+                token = new CancellationToken();
+                await _musicianOnConcertPresenter.AddMusicianOnConcertAsync(concert.Id, musician.Id, token);
+            }
+            
             _concertBuilder = new ConcertBuilder(); // сброс builder после сохранения
         }
         else
@@ -33,7 +50,7 @@ public class ConcertPresenter : IConcertPresenter
 
     public async Task<IReadOnlyCollection<Concert>> GetConcertsAsync(CancellationToken token)
     {
-        return await _concertStorage.GetAllConcerts(token);
+        return await _concertStorage.GetAllConcertsAsync(token);
     }
 
     public void SetConcertType(string type)
@@ -51,7 +68,7 @@ public class ConcertPresenter : IConcertPresenter
         _concertBuilder.Musicians.Add(musician);
     }
 
-    public void SetConcertDate(DateTime date)
+    public void SetConcertDate(string date)
     {
         _concertBuilder.Date = date;
     }
