@@ -46,7 +46,7 @@ public class FindMusicianView
                     .Select(l => l.Name)
                     .ToList();
 
-                Console.WriteLine($"Имя: {musician.Name} {musician.LastName}, Инструменты: {string.Join(", ", musicianInstruments)}");
+                Console.WriteLine($"Имя: {musician.Name} {musician.LastName}, {string.Join(", ", musicianInstruments)}");
             }
         }
         else

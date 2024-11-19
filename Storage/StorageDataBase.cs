@@ -28,7 +28,6 @@ namespace Storage
         {
             using var connection = new NpgsqlConnection(_connectionString);
             var query = $"SELECT * FROM {_tableName} WHERE {whereClause}";
-            Console.WriteLine(query);
             await connection.OpenAsync(cancellationToken);
             return await connection.QueryFirstOrDefaultAsync<T>(query, parameters);
         }
@@ -51,7 +50,6 @@ namespace Storage
             }
             //GOVNOKOD OFF
             
-            Console.WriteLine(query);
             await connection.OpenAsync(cancellationToken);
             var result = await connection.QueryAsync<T>(query, parameters);
             return result.ToList();
@@ -62,7 +60,6 @@ namespace Storage
         {
             using var connection = new NpgsqlConnection(_connectionString);
             var insertQuery = GenerateInsertQuery(entity);
-            Console.WriteLine(insertQuery);
             await connection.OpenAsync(cancellationToken);
             await connection.ExecuteAsync(insertQuery, entity);
         }

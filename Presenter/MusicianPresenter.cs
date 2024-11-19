@@ -28,6 +28,7 @@ public class MusicianPresenter : IMusicianPresenter
         
         foreach (var instrument in instruments)
         {
+            Console.WriteLine(instrument.ToString());
             await _instrumentPresenter.AddInstrumentAsync(instrument.Id, instrument.Name, token);
             await _musicianInstrumentPresenter.AddMusicianInstrumentAsync(musician.Id, instrument.Id, token);
         }

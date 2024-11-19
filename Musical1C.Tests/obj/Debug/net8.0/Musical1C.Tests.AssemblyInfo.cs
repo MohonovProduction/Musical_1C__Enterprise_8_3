@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Musical1C.Tests")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+51412aec3ce34bd142028e5fc5a0cc449e75da26")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+27927a533730c385c416b6f8740c5fef6bcfdbaa")]
 [assembly: System.Reflection.AssemblyProductAttribute("Musical1C.Tests")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Musical1C.Tests")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

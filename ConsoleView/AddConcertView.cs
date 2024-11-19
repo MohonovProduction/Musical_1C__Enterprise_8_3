@@ -173,23 +173,51 @@ public class AddConcertView
     private async Task AddNewMusicianAndAddToConcertAsync()
     {
         var token = new CancellationToken();
+
         Console.Write("Введите имя музыканта: ");
         var name = Console.ReadLine();
+        if (string.IsNullOrWhiteSpace(name))
+        {
+            Console.WriteLine("Имя музыканта не может быть пустым.");
+            return;
+        }
 
         Console.Write("Введите фамилию музыканта: ");
         var lastName = Console.ReadLine();
+        if (string.IsNullOrWhiteSpace(lastName))
+        {
+            Console.WriteLine("Фамилия музыканта не может быть пустой.");
+            return;
+        }
 
         Console.Write("Введите отчество музыканта: ");
         var surname = Console.ReadLine();
+        if (string.IsNullOrWhiteSpace(surname))
+        {
+            Console.WriteLine("Отчество музыканта не может быть пустым.");
+            return;
+        }
 
         Console.WriteLine("Введите инструменты (через запятую): ");
         var instrumentNames = Console.ReadLine()?.Split(",").Select(i => i.Trim()).ToList();
+        if (instrumentNames == null || instrumentNames.Count == 0)
+        {
+            Console.WriteLine("Список инструментов не может быть пустым.");
+            return;
+        }
 
-        var instruments = instrumentNames?.Select(i => new Instrument(Guid.NewGuid(),i)).ToList() ?? new List<Instrument>();
-        var newMusician = await _musicianPresenter.AddMusicianAsync(name, lastName, surname, instruments, token);
-        
-        _concertPresenter.AddMusicianToConcert(newMusician);
-        Console.WriteLine("Новый музыкант добавлен.");
+        var instruments = instrumentNames.Select(i => new Instrument(Guid.NewGuid(), i)).ToList();
+
+        try
+        {
+            var newMusician = await _musicianPresenter.AddMusicianAsync(name, lastName, surname, instruments, token);
+            _concertPresenter.AddMusicianToConcert(newMusician);
+            Console.WriteLine("Новый музыкант добавлен.");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Произошла ошибка: {ex.Message}");
+        }
     }
 
     private async Task AddDateToConcertAsync()
