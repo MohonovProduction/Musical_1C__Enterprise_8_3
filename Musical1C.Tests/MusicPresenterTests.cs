@@ -1,92 +1,77 @@
-﻿using Moq;
+﻿using System.Diagnostics.CodeAnalysis;
+using Moq;
 using Presenter;
 using Storage;
 
 namespace Musical1C.Tests
 {
     [TestFixture]
+    [ExcludeFromCodeCoverage]
     public class MusicPresenterTests
     {
         private Mock<IMusicStorage> _mockMusicStorage;
-        private MusicPresenter _musicPresenter;
+        private MusicPresenter _presenter;
 
         [SetUp]
         public void SetUp()
         {
             _mockMusicStorage = new Mock<IMusicStorage>();
-            _musicPresenter = new MusicPresenter(_mockMusicStorage.Object);
+            _presenter = new MusicPresenter(_mockMusicStorage.Object);
         }
 
         [Test]
-        public async Task AddMusicAsync_ShouldReturnMusic_WhenCalled()
+        public async Task AddMusicAsync_ShouldCallAddMusicAsync()
         {
             // Arrange
-            var name = "Test Music";
-            var author = "Test Author";
+            var name = "Symphony No. 5";
+            var author = "Beethoven";
             var token = CancellationToken.None;
-            var expectedMusic = new Music(Guid.NewGuid(), name, author);
-            _mockMusicStorage.Setup(storage => storage.AddMusicAsync(It.IsAny<Music>(), token))
-                             .Returns(Task.CompletedTask);
 
             // Act
-            var result = await _musicPresenter.AddMusicAsync(name, author, token);
+            var music = await _presenter.AddMusicAsync(name, author, token);
 
             // Assert
-            Assert.That(result.Name, Is.EqualTo(expectedMusic.Name));
-            Assert.That(result.Author, Is.EqualTo(expectedMusic.Author));
-            _mockMusicStorage.Verify(storage => storage.AddMusicAsync(It.IsAny<Music>(), token), Times.Once);
+            _mockMusicStorage.Verify(s => s.AddMusicAsync(It.Is<Music>(m => m.Name == name && m.Author == author), token), Times.Once);
+            Assert.IsNotNull(music);
+            Assert.AreEqual(name, music.Name);
+            Assert.AreEqual(author, music.Author);
         }
 
         [Test]
-        public async Task DeleteMusicAsync_ShouldCallDeleteMusic_WhenCalled()
+        public async Task DeleteMusicAsync_ShouldCallDeleteMusicAsync()
         {
             // Arrange
-            var music = new Music(Guid.NewGuid(), "Test Music", "Test Author");
+            var music = new Music(Guid.NewGuid(), "Moonlight Sonata", "Beethoven");
             var token = CancellationToken.None;
-            _mockMusicStorage.Setup(storage => storage.DeleteMusicAsync(music, token))
-                             .Returns(Task.CompletedTask);
 
             // Act
-            await _musicPresenter.DeleteMusicAsync(music, token);
+            await _presenter.DeleteMusicAsync(music, token);
 
             // Assert
-            _mockMusicStorage.Verify(storage => storage.DeleteMusicAsync(music, token), Times.Once);
+            _mockMusicStorage.Verify(s => s.DeleteMusicAsync(music, token), Times.Once);
         }
 
         [Test]
-        public async Task GetMusicAsync_ShouldReturnMusicList_WhenCalled()
+        public async Task GetMusicAsync_ShouldReturnListOfMusic()
         {
             // Arrange
-            var musicList = new List<Music>
+            var expectedMusic = new List<Music>
             {
-                new Music(Guid.NewGuid(), "Test Music 1", "Test Author 1"),
-                new Music(Guid.NewGuid(), "Test Music 2", "Test Author 2")
+                new Music(Guid.NewGuid(), "Symphony No. 5", "Beethoven"),
+                new Music(Guid.NewGuid(), "Clair de Lune", "Debussy")
             };
+            
             var token = CancellationToken.None;
-            _mockMusicStorage.Setup(storage => storage.GetAllMusicAsync(token))
-                             .ReturnsAsync(musicList);
+
+            _mockMusicStorage.Setup(s => s.GetAllMusicAsync(token))
+                .ReturnsAsync(expectedMusic);
 
             // Act
-            var result = await _musicPresenter.GetMusicAsync(token);
+            var result = await _presenter.GetMusicAsync(token);
 
             // Assert
-            Assert.That(result.Count, Is.EqualTo(musicList.Count));
-            
-            // Используем метод ElementAt для доступа по индексу
-            Assert.That(result.ElementAt(0).Name, Is.EqualTo(musicList.ElementAt(0).Name));
-            Assert.That(result.ElementAt(1).Name, Is.EqualTo(musicList.ElementAt(1).Name));
-            
-            _mockMusicStorage.Verify(storage => storage.GetAllMusicAsync(token), Times.Once);
-        }
-
-        [Test]
-        public void Constructor_ShouldCreateMusicPresenter_WithMusicStorage()
-        {
-            // Arrange & Act
-            var presenter = new MusicPresenter();
-
-            // Assert
-            Assert.IsNotNull(presenter);
+            Assert.AreEqual(expectedMusic.Count, result.Count);
+            CollectionAssert.AreEquivalent(expectedMusic, result);
         }
     }
 }

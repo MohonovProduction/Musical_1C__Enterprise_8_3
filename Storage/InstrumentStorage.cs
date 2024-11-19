@@ -6,14 +6,14 @@ namespace Storage
 {
     public class InstrumentStorage : IInstrumentStorage
     {
-        private readonly StorageDataBase<Instrument> _storageDataBase;
+        private readonly IStorageDataBase<Instrument> _storageDataBase;
 
         public InstrumentStorage(string connectionString, string tableName)
         {
             _storageDataBase = new StorageDataBase<Instrument>(connectionString, tableName);
         }
 
-        public InstrumentStorage(StorageDataBase<Instrument> storageDataBase)
+        public InstrumentStorage(IStorageDataBase<Instrument> storageDataBase)
         {
             _storageDataBase = storageDataBase;
         }

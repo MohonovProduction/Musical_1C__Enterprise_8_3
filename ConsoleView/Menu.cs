@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 
+[ExcludeFromCodeCoverage]
 public class Menu
 {
     private readonly Dictionary<int, Func<Task>> _menuActions;

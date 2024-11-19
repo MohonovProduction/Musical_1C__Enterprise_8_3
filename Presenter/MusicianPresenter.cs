@@ -8,12 +8,12 @@ namespace Presenter;
 public class MusicianPresenter : IMusicianPresenter
 {
     private readonly IMusicianStorage _musicianStorage;
-    private readonly InstrumentPresenter _instrumentPresenter = new InstrumentPresenter();
-    private readonly MusicianInstrumentPresenter _musicianInstrumentPresenter = new MusicianInstrumentPresenter();
+    public InstrumentPresenter _instrumentPresenter = new InstrumentPresenter();
+    public MusicianInstrumentPresenter _musicianInstrumentPresenter;
     
-    public MusicianPresenter(IMusicianStorage musicianStorage)
+    public MusicianPresenter(IMusicianStorage Storage)
     {
-        _musicianStorage = musicianStorage;
+        _musicianStorage = Storage;
     }
     public MusicianPresenter()
     {

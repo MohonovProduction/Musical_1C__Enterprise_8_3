@@ -4,9 +4,9 @@ namespace Presenter;
 
 public class MusicianOnConcertPresenter
 {
-    private readonly MusicianOnConcertStorage _instrumentStorage;
+    private readonly IMusicianOnConcertStorage _instrumentStorage;
 
-    public MusicianOnConcertPresenter(MusicianOnConcertStorage instrumentStorage)
+    public MusicianOnConcertPresenter(IMusicianOnConcertStorage instrumentStorage)
     {
         _instrumentStorage = instrumentStorage;
     }

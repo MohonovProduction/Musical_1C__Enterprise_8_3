@@ -1,15 +1,15 @@
 ﻿namespace Storage;
 
-public class MusicianInstrumentStorage
+public class MusicianInstrumentStorage : IMusicianInstrumentStorage
 {
-    private readonly StorageDataBase<MusicianInstrument> _storageDataBase;
+    private readonly IStorageDataBase<MusicianInstrument> _storageDataBase;
 
     public MusicianInstrumentStorage(string connectionString, string tableName)
     {
         _storageDataBase = new StorageDataBase<MusicianInstrument>(connectionString, tableName);
     }
 
-    public MusicianInstrumentStorage(StorageDataBase<MusicianInstrument> storageDataBase)
+    public MusicianInstrumentStorage(IStorageDataBase<MusicianInstrument> storageDataBase)
     {
         _storageDataBase = storageDataBase;
     }

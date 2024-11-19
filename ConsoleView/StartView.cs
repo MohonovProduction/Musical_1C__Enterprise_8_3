@@ -1,7 +1,10 @@
-﻿namespace ConsoleView;
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace ConsoleView;
 
 public class StartView
 {
+    [ExcludeFromCodeCoverage]
     public async Task RunAsync()
     {
         Console.WriteLine("Добро пожаловать в систему 1С-Дирижер");

@@ -1,17 +1,12 @@
 ﻿namespace Storage;
 
-public class SoundOnConcertStorage
+public class SoundOnConcertStorage : ISoundOnConcertStorage
 {
-    private readonly StorageDataBase<SoundOnConcert> _storageDataBase;
+    private readonly IStorageDataBase<SoundOnConcert> _storageDataBase;
 
     public SoundOnConcertStorage(string connectionString, string tableName)
     {
         _storageDataBase = new StorageDataBase<SoundOnConcert>(connectionString, tableName);
-    }
-
-    public SoundOnConcertStorage(StorageDataBase<SoundOnConcert> storageDataBase)
-    {
-        _storageDataBase = storageDataBase;
     }
 
     public async Task AddSoundOnConcertAsync(SoundOnConcert soundOnConcert, CancellationToken token)

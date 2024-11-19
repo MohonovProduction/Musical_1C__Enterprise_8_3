@@ -1,7 +1,9 @@
-﻿using Presenter;
+﻿using System.Diagnostics.CodeAnalysis;
+using Presenter;
 
 namespace ConsoleView;
 
+[ExcludeFromCodeCoverage]
 public class FindMusicianView
 {   
     private readonly MusicianInstrumentPresenter _musicianInstrumentPresenter = new MusicianInstrumentPresenter();

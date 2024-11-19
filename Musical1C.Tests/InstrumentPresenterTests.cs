@@ -1,73 +1,73 @@
-﻿using Moq;
+﻿using System.Diagnostics.CodeAnalysis;
+using Moq;
 using Presenter;
 using Storage;
 
 namespace Musical1C.Tests
 {
     [TestFixture]
+    [ExcludeFromCodeCoverage]
     public class InstrumentPresenterTests
     {
         private Mock<IInstrumentStorage> _mockInstrumentStorage;
         private InstrumentPresenter _presenter;
-        private CancellationToken _cancellationToken;
 
         [SetUp]
         public void SetUp()
         {
             _mockInstrumentStorage = new Mock<IInstrumentStorage>();
             _presenter = new InstrumentPresenter(_mockInstrumentStorage.Object);
-            _cancellationToken = new CancellationToken();
         }
 
         [Test]
-        public async Task AddInstrumentAsync_ShouldAddInstrument()
+        public async Task AddInstrumentAsync_ShouldCallAddInstrumentAsync()
         {
             // Arrange
-            var token = _cancellationToken;
-            var instrumentName = "Guitar";
+            var id = Guid.NewGuid();
+            var name = "Guitar";
+            var token = CancellationToken.None;
 
             // Act
-            await _presenter.AddInstrumentAsync(instrumentName, token);
+            await _presenter.AddInstrumentAsync(id, name, token);
 
             // Assert
-            _mockInstrumentStorage.Verify(storage => storage.AddInstrumentAsync(It.IsAny<Instrument>(), token), Times.Once);
+            _mockInstrumentStorage.Verify(s => s.AddInstrumentAsync(It.Is<Instrument>(i => i.Id == id && i.Name == name), token), Times.Once);
         }
 
         [Test]
-        public async Task DeleteInstrumentAsync_ShouldDeleteInstrument()
+        public async Task DeleteInstrumentAsync_ShouldCallDeleteInstrumentAsync()
         {
             // Arrange
-            var token = _cancellationToken;
-            var instrumentId = Guid.NewGuid();
-            var instrument = new Instrument(instrumentId, "Piano");
+            var instrument = new Instrument(Guid.NewGuid(), "Piano");
+            var token = CancellationToken.None;
 
             // Act
             await _presenter.DeleteInstrumentAsync(instrument, token);
 
             // Assert
-            _mockInstrumentStorage.Verify(storage => storage.DeleteInstrumentAsync(instrument, token), Times.Once);
+            _mockInstrumentStorage.Verify(s => s.DeleteInstrumentAsync(instrument, token), Times.Once);
         }
 
         [Test]
         public async Task GetInstrumentsAsync_ShouldReturnInstruments()
         {
             // Arrange
-            var token = _cancellationToken;
-            var instrumentsList = new List<Instrument>
+            var expectedInstruments = new List<Instrument>
             {
-                new Instrument(Guid.NewGuid(), "Drum"),
-                new Instrument(Guid.NewGuid(), "Violin")
+                new Instrument(Guid.NewGuid(), "Guitar"),
+                new Instrument(Guid.NewGuid(), "Piano")
             };
+            var token = CancellationToken.None;
 
-            _mockInstrumentStorage.Setup(storage => storage.GetInstrumentsAsync(token)).ReturnsAsync(instrumentsList);
+            _mockInstrumentStorage.Setup(s => s.GetInstrumentsAsync(token))
+                .ReturnsAsync(expectedInstruments);
 
             // Act
             var result = await _presenter.GetInstrumentsAsync(token);
 
             // Assert
-            Assert.That(result.Count, Is.EqualTo(2));
-            Assert.Contains(result.First(i => i.Name == "Drum"), result.ToList());
-            Assert.Contains(result.First(i => i.Name == "Violin"), result.ToList());
+            Assert.AreEqual(expectedInstruments.Count, result.Count);
+            CollectionAssert.AreEquivalent(expectedInstruments, result);
         }
     }
 }

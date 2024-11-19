@@ -4,9 +4,9 @@ namespace Presenter;
 
 public class SoundOnConcertPresenter : ISoundOnConcertPresenter
 {
-    private readonly SoundOnConcertStorage _instrumentStorage;
+    private readonly ISoundOnConcertStorage _instrumentStorage;
 
-    public SoundOnConcertPresenter(SoundOnConcertStorage instrumentStorage)
+    public SoundOnConcertPresenter(ISoundOnConcertStorage instrumentStorage)
     {
         _instrumentStorage = instrumentStorage;
     }

@@ -6,69 +6,66 @@ namespace Musical1C.Tests
     [TestFixture]
     public class InstrumentStorageTests
     {
-        private Mock<IStorageFile<Instrument>> _mockStorageFile;
+        private Mock<IStorageDataBase<Instrument>> _mockStorageDataBase;
         private InstrumentStorage _instrumentStorage;
+        private CancellationToken _cancellationToken;
 
         [SetUp]
         public void SetUp()
         {
-            _mockStorageFile = new Mock<IStorageFile<Instrument>>();
-            _instrumentStorage = new InstrumentStorage(_mockStorageFile.Object)
-            {
-                // Заменяем внутренний объект StorageFile на мок
-                _storageFile = _mockStorageFile.Object
-            };
+            _mockStorageDataBase = new Mock<IStorageDataBase<Instrument>>();
+            _instrumentStorage = new InstrumentStorage(_mockStorageDataBase.Object);
+            _cancellationToken = new CancellationToken();
         }
 
         [Test]
-        public async Task AddInstrumentAsync_ShouldCallAddAsync()
+        public async Task AddInstrumentAsync_ShouldCallAddAsyncOnce()
         {
             // Arrange
-            var token = CancellationToken.None;
-            var instrument = new Instrument(Guid.NewGuid(), "Guitar");
+            var instrument = new Instrument { Id = Guid.NewGuid(), Name = "Guitar" };
 
             // Act
-            await _instrumentStorage.AddInstrumentAsync(instrument, token);
+            await _instrumentStorage.AddInstrumentAsync(instrument, _cancellationToken);
 
             // Assert
-            _mockStorageFile.Verify(storage => storage.AddAsync(instrument, token), Times.Once);
+            _mockStorageDataBase.Verify(db => db.AddAsync(instrument, _cancellationToken), Times.Once);
         }
 
         [Test]
-        public async Task DeleteInstrumentAsync_ShouldCallDeleteAsync()
+        public async Task DeleteInstrumentAsync_ShouldCallDeleteAsyncWithCorrectParameters()
         {
             // Arrange
-            var token = CancellationToken.None;
-            var instrumentId = Guid.NewGuid();
-            var instrument = new Instrument(instrumentId, "Piano");
+            var instrument = new Instrument { Id = Guid.NewGuid(), Name = "Guitar" };
 
             // Act
-            await _instrumentStorage.DeleteInstrumentAsync(instrument, token);
+            await _instrumentStorage.DeleteInstrumentAsync(instrument, _cancellationToken);
 
             // Assert
-            _mockStorageFile.Verify(storage => storage.DeleteAsync(It.IsAny<Func<Instrument, bool>>(), token), Times.Once);
+            _mockStorageDataBase.Verify(db =>
+                db.DeleteAsync("id = @Id", It.Is<object>(p => (Guid)p.GetType().GetProperty("Id").GetValue(p) == instrument.Id),
+                _cancellationToken), Times.Once);
         }
 
         [Test]
-        public async Task GetInstrumentsAsync_ShouldReturnInstruments()
+        public async Task GetInstrumentsAsync_ShouldCallGetListAsyncOnce()
         {
             // Arrange
-            var token = CancellationToken.None;
-            var instrumentsList = new List<Instrument>
+            var instruments = new List<Instrument>
             {
-                new Instrument(Guid.NewGuid(), "Drum"),
-                new Instrument(Guid.NewGuid(), "Violin")
+                new Instrument { Id = Guid.NewGuid(), Name = "Guitar" },
+                new Instrument { Id = Guid.NewGuid(), Name = "Piano" }
             };
 
-            _mockStorageFile.Setup(storage => storage.GetAllAsync(token)).ReturnsAsync(instrumentsList);
+            _mockStorageDataBase
+                .Setup(db => db.GetListAsync(It.IsAny<string>(), null, _cancellationToken))
+                .ReturnsAsync(instruments);
 
             // Act
-            var result = await _instrumentStorage.GetInstrumentsAsync(token);
+            var result = await _instrumentStorage.GetInstrumentsAsync(_cancellationToken);
 
             // Assert
-            Assert.AreEqual(2, result.Count);
-            Assert.Contains(result.First(i => i.Name == "Drum"), result.ToList());
-            Assert.Contains(result.First(i => i.Name == "Violin"), result.ToList());
+            Assert.AreEqual(instruments, result);
+            _mockStorageDataBase.Verify(db => db.GetListAsync(It.IsAny<string>(), null, _cancellationToken), Times.Once);
         }
     }
 }

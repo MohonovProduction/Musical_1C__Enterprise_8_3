@@ -6,11 +6,15 @@ namespace Storage
 {
     public class MusicianStorage : IMusicianStorage
     {
-        private readonly StorageDataBase<Musician> _storageDataBase;
+        private readonly IStorageDataBase<Musician> _storageDataBase;
 
         public MusicianStorage(string connectionString, string tableName)
         {
             _storageDataBase = new StorageDataBase<Musician>(connectionString, tableName);
+        }
+        public MusicianStorage(IStorageDataBase<Musician> storageDataBase)
+        {
+            _storageDataBase = storageDataBase;
         }
 
         public async Task AddMusicianAsync(Musician musician, CancellationToken token)

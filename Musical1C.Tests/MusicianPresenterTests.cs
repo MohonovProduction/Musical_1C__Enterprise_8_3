@@ -8,18 +8,28 @@ namespace Musical1C.Tests
     public class MusicianPresenterTests
     {
         private Mock<IMusicianStorage> _mockMusicianStorage;
+        private Mock<InstrumentPresenter> _mockInstrumentPresenter;
+        private Mock<MusicianInstrumentPresenter> _mockMusicianInstrumentPresenter;
         private MusicianPresenter _musicianPresenter;
         private CancellationToken _cancellationToken;
+
         [SetUp]
         public void SetUp()
         {
             _mockMusicianStorage = new Mock<IMusicianStorage>();
-            _musicianPresenter = new MusicianPresenter(_mockMusicianStorage.Object);
+            _mockInstrumentPresenter = new Mock<InstrumentPresenter>();
+            _mockMusicianInstrumentPresenter = new Mock<MusicianInstrumentPresenter>();
+            _musicianPresenter = new MusicianPresenter(_mockMusicianStorage.Object)
+            {
+                // Подмена приватных зависимостей
+                _instrumentPresenter = _mockInstrumentPresenter.Object,
+                _musicianInstrumentPresenter = _mockMusicianInstrumentPresenter.Object
+            };
             _cancellationToken = new CancellationToken();
         }
 
         [Test]
-        public async Task AddMusicianAsync_ShouldCallAddMusicianAsyncOnStorage()
+        public async Task AddMusicianAsync_ShouldAddMusicianAndAssociateInstruments()
         {
             // Arrange
             var name = "John";
@@ -27,64 +37,84 @@ namespace Musical1C.Tests
             var surname = "Smith";
             var instruments = new List<Instrument>
             {
-                new Instrument(Guid.NewGuid(), "Guitar")
+                new Instrument(Guid.NewGuid(), "Guitar"),
+                new Instrument(Guid.NewGuid(), "Piano")
             };
-            var cancellationToken = _cancellationToken;
+
+            _mockMusicianStorage
+                .Setup(storage => storage.AddMusicianAsync(It.IsAny<Musician>(), _cancellationToken))
+                .Returns(Task.CompletedTask);
+
+            _mockInstrumentPresenter
+                .Setup(presenter => presenter.AddInstrumentAsync(It.IsAny<Guid>(), It.IsAny<string>(), _cancellationToken))
+                .Returns(Task.CompletedTask);
+
+            _mockMusicianInstrumentPresenter
+                .Setup(presenter => presenter.AddMusicianInstrumentAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), _cancellationToken))
+                .Returns(Task.CompletedTask);
 
             // Act
-            var musician = await _musicianPresenter.AddMusicianAsync(name, lastName, surname, instruments, cancellationToken);
+            var result = await _musicianPresenter.AddMusicianAsync(name, lastName, surname, instruments, _cancellationToken);
 
             // Assert
             _mockMusicianStorage.Verify(
-                storage => storage.AddMusicianAsync(It.Is<Musician>(m =>
-                    m.Name == name &&
-                    m.LastName == lastName &&
-                    m.Surname == surname &&
-                    m.Instruments == instruments
-                ), cancellationToken),
-                Times.Once
-            );
-            Assert.AreEqual(name, musician.Name);
-            Assert.AreEqual(lastName, musician.LastName);
-            Assert.AreEqual(surname, musician.Surname);
-            Assert.AreEqual(instruments, musician.Instruments);
-        }
+                storage => storage.AddMusicianAsync(It.Is<Musician>(m => m.Name == name && m.LastName == lastName && m.Surname == surname), _cancellationToken),
+                Times.Once);
 
-        [Test]
-        public async Task DeleteMusicianAsync_ShouldCallDeleteMusicianAsyncOnStorage()
-        {
-            // Arrange
-            var musician = new Musician(Guid.NewGuid(), "Jane", "Doe", "Smith", new List<Instrument>());
-            var cancellationToken = _cancellationToken;
-
-            // Act
-            await _musicianPresenter.DeleteMusicianAsync(musician, cancellationToken);
-
-            // Assert
-            _mockMusicianStorage.Verify(
-                storage => storage.DeleteMusicianAsync(musician, cancellationToken),
-                Times.Once
-            );
-        }
-
-        [Test]
-        public async Task GetMusiciansAsync_ShouldReturnMusiciansFromStorage()
-        {
-            // Arrange
-            var cancellationToken =  _cancellationToken;
-            var expectedMusicians = new List<Musician>
+            foreach (var instrument in instruments)
             {
-                new Musician(Guid.NewGuid(), "Alice", "Doe", "Smith", new List<Instrument>()),
-                new Musician(Guid.NewGuid(), "Bob", "Johnson", "Lee", new List<Instrument>())
-            };
-            _mockMusicianStorage.Setup(storage => storage.GetAllMusiciansAsync(cancellationToken))
-                                .ReturnsAsync(expectedMusicians);
+                _mockInstrumentPresenter.Verify(
+                    presenter => presenter.AddInstrumentAsync(instrument.Id, instrument.Name, _cancellationToken),
+                    Times.Once);
+
+                _mockMusicianInstrumentPresenter.Verify(
+                    presenter => presenter.AddMusicianInstrumentAsync(It.IsAny<Guid>(), instrument.Id, _cancellationToken),
+                    Times.Once);
+            }
+
+            Assert.IsNotNull(result);
+            Assert.AreEqual(name, result.Name);
+            Assert.AreEqual(lastName, result.LastName);
+            Assert.AreEqual(surname, result.Surname);
+        }
+
+        [Test]
+        public async Task DeleteMusicianAsync_ShouldCallDeleteMusicianAsync()
+        {
+            // Arrange
+            var musician = new Musician(Guid.NewGuid(), "John", "Doe", "Smith");
+
+            _mockMusicianStorage
+                .Setup(storage => storage.DeleteMusicianAsync(musician, _cancellationToken))
+                .Returns(Task.CompletedTask);
 
             // Act
-            var musicians = await _musicianPresenter.GetMusiciansAsync(cancellationToken);
+            await _musicianPresenter.DeleteMusicianAsync(musician, _cancellationToken);
 
             // Assert
-            Assert.AreEqual(expectedMusicians, musicians);
+            _mockMusicianStorage.Verify(storage => storage.DeleteMusicianAsync(musician, _cancellationToken), Times.Once);
+        }
+
+        [Test]
+        public async Task GetMusiciansAsync_ShouldReturnAllMusicians()
+        {
+            // Arrange
+            var musicians = new List<Musician>
+            {
+                new Musician(Guid.NewGuid(), "John", "Doe", "Smith"),
+                new Musician(Guid.NewGuid(), "Jane", "Doe", "Smith")
+            };
+
+            _mockMusicianStorage
+                .Setup(storage => storage.GetAllMusiciansAsync(_cancellationToken))
+                .ReturnsAsync(musicians);
+
+            // Act
+            var result = await _musicianPresenter.GetMusiciansAsync(_cancellationToken);
+
+            // Assert
+            Assert.AreEqual(musicians, result);
+            _mockMusicianStorage.Verify(storage => storage.GetAllMusiciansAsync(_cancellationToken), Times.Once);
         }
     }
 }

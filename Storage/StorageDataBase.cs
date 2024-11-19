@@ -12,7 +12,7 @@ using Dapper;
 
 namespace Storage
 {
-    public class StorageDataBase<T>
+    public class StorageDataBase<T> : IStorageDataBase<T>
     {
         public readonly string _connectionString;
         private readonly string _tableName;

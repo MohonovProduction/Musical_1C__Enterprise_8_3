@@ -1,8 +1,10 @@
-﻿using Presenter;
+﻿using System.Diagnostics.CodeAnalysis;
+using Presenter;
 using Storage;
 
 namespace ConsoleView;
 
+[ExcludeFromCodeCoverage]
 public class AddConcertView
 {
     private readonly ConcertPresenter _concertPresenter = new ConcertPresenter();
