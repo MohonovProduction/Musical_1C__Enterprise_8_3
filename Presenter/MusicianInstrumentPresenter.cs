@@ -1,29 +1,45 @@
 ﻿using Storage;
+using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 
-namespace Presenter;
-
-public class MusicianInstrumentPresenter : IMusicianInstrumentPresenter
+namespace Presenter
 {
-    private readonly IMusicianInstrumentStorage _instrumentStorage;
-    
-    public MusicianInstrumentPresenter()
+    public class MusicianInstrumentPresenter : IMusicianInstrumentPresenter
     {
-        _instrumentStorage = new MusicianInstrumentStorage("Host=localhost;Port=5432;Username=postgres;Password=1111;Database=musical1c", "musician_instrument");
-    }
+        private readonly IStorageDataBase<MusicianInstrument> _musicianInstrumentStorage;
 
-    public MusicianInstrumentPresenter(IMusicianInstrumentStorage storageDataBase)
-    {
-        _instrumentStorage = storageDataBase;
-    }
-    
-    public async Task AddMusicianInstrumentAsync(Guid musicianId, Guid instrumentId, CancellationToken token)
-    {
-        var instrument = new MusicianInstrument(musicianId, instrumentId);
-        await _instrumentStorage.AddMusicianInstrumentAsync(instrument, token);
-    }
+        // Конструктор, принимающий IStorageDataBase<MusicianInstrument>
+        public MusicianInstrumentPresenter(IStorageDataBase<MusicianInstrument> musicianInstrumentStorage)
+        {
+            _musicianInstrumentStorage = musicianInstrumentStorage;
+        }
 
-    public async Task<IReadOnlyCollection<MusicianInstrument>> GetMusicianInstrumentAsync(CancellationToken token)
-    {
-        return await _instrumentStorage.GetAllMusicianInstrumentAsync(token);
+        // Конструктор по умолчанию, использующий MusicianInstrumentStorage
+        public MusicianInstrumentPresenter(ApplicationDbContext dbContext)
+        {
+            _musicianInstrumentStorage = new StorageDataBase<MusicianInstrument>(dbContext);
+        }
+
+        // Добавление связи музыканта с инструментом
+        public async Task AddMusicianInstrumentAsync(Guid musicianId, Guid instrumentId, CancellationToken token)
+        {
+            var musicianInstrument = new MusicianInstrument(musicianId, instrumentId);
+            await _musicianInstrumentStorage.AddAsync(musicianInstrument, token);
+        }
+
+        // Получение всех связей музыкантов с инструментами
+        public async Task<IReadOnlyCollection<MusicianInstrument>> GetMusicianInstrumentAsync(CancellationToken token)
+        {
+            return await _musicianInstrumentStorage.GetListAsync(null, null, token);
+        }
+
+        // Удаление связи музыканта с инструментом
+        public async Task DeleteMusicianInstrumentAsync(Guid musicianId, Guid instrumentId, CancellationToken token)
+        {
+            // Это можно изменить на более гибкий метод, если требуется
+            await _musicianInstrumentStorage.DeleteAsync($"MusicianId = {musicianId} AND InstrumentId = {instrumentId}", null, token);
+        }
     }
 }

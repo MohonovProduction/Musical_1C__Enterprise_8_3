@@ -26,7 +26,8 @@ namespace Storage
         }
 
         // Получение списка записей по условию
-        public async Task<IReadOnlyCollection<T>> GetListAsync(string whereClause, object parameters, CancellationToken cancellationToken)
+        public async Task<IReadOnlyCollection<T>> GetListAsync(string whereClause, object parameters,
+            CancellationToken cancellationToken)
         {
             // Если требуется универсальная фильтрация, реализуйте парсер whereClause, но рекомендуется использовать LINQ.
             if (string.IsNullOrEmpty(whereClause))
@@ -50,7 +51,8 @@ namespace Storage
         }
 
         // Обновление записи по условию
-        public async Task UpdateAsync(string whereClause, object parameters, T updatedEntity, CancellationToken cancellationToken)
+        public async Task UpdateAsync(string whereClause, object parameters, T updatedEntity,
+            CancellationToken cancellationToken)
         {
             // EF автоматически отслеживает изменения объектов, поэтому их можно обновить просто изменением свойств.
             throw new NotImplementedException("Use EF tracking to manage updates.");

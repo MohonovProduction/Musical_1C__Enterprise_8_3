@@ -5,77 +5,95 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Presenter;
-
-public class ConcertPresenter : IConcertPresenter
+namespace Presenter
 {
-    private readonly MusicianOnConcertPresenter _musicianOnConcertPresenter = new MusicianOnConcertPresenter();
-    private readonly SoundOnConcertPresenter _soundOnConcertPresenter = new SoundOnConcertPresenter();
-    private readonly ConcertStorage _concertStorage = new ConcertStorage("Host=localhost;Port=5432;Username=postgres;Password=1111;Database=musical1c", "concert");
-    private ConcertBuilder _concertBuilder = new ConcertBuilder();
-
-    public async Task AddConcertAsync(string name,CancellationToken token)
+    public class ConcertPresenter : IConcertPresenter
     {
-        var fullConcert = _concertBuilder.BuildConcert(name);
-        
-        if (fullConcert != null)
-        {
-            var concert = new Concert(Guid.NewGuid(), fullConcert.Name, fullConcert.Type, fullConcert.Date);
-            await _concertStorage.AddConcertAsync(concert, token);
+        private readonly MusicianOnConcertPresenter _musicianOnConcertPresenter = new MusicianOnConcertPresenter();
+        private readonly SoundOnConcertPresenter _soundOnConcertPresenter = new SoundOnConcertPresenter();
+        private readonly IConcertStorage _concertStorage; // Используем интерфейс для гибкости
+        private ConcertBuilder _concertBuilder = new ConcertBuilder();
 
-            foreach (var music in fullConcert.Music)
+        public ConcertPresenter(IConcertStorage concertStorage)
+        {
+            _concertStorage = concertStorage ?? throw new ArgumentNullException(nameof(concertStorage));
+        }
+
+        // Добавление концерта
+        public async Task AddConcertAsync(string name, CancellationToken token)
+        {
+            var fullConcert = _concertBuilder.BuildConcert(name);
+
+            if (fullConcert != null)
             {
-                token = new CancellationToken();
-                await _soundOnConcertPresenter.AddSoundOnConcertAsync(concert.Id, music.Id, token);
+                var concert = new Concert(Guid.NewGuid(), fullConcert.Name, fullConcert.Type, fullConcert.Date);
+                await _concertStorage.AddConcertAsync(concert, token);
+
+                foreach (var music in fullConcert.Music)
+                {
+                    token.ThrowIfCancellationRequested();
+                    await _soundOnConcertPresenter.AddSoundOnConcertAsync(concert.Id, music.Id, token);
+                }
+
+                foreach (var musician in fullConcert.Musicians)
+                {
+                    token.ThrowIfCancellationRequested();
+                    await _musicianOnConcertPresenter.AddMusicianOnConcertAsync(concert.Id, musician.Id, token);
+                }
+
+                _concertBuilder = new ConcertBuilder(); // сброс builder после сохранения
+            }
+            else
+            {
+                Console.WriteLine("Ошибка: не все данные концерта заполнены.");
+            }
+        }
+
+        // Удаление концерта
+        public async Task DeleteConcertAsync(Concert concert, CancellationToken token)
+        {
+            if (concert == null)
+            {
+                throw new ArgumentNullException(nameof(concert));
             }
 
-            foreach (var musician in fullConcert.Musicians)
-            {
-                token = new CancellationToken();
-                await _musicianOnConcertPresenter.AddMusicianOnConcertAsync(concert.Id, musician.Id, token);
-            }
-            
-            _concertBuilder = new ConcertBuilder(); // сброс builder после сохранения
+            await _concertStorage.DeleteConcertAsync(concert, token);
         }
-        else
+
+        // Получение всех концертов
+        public async Task<IReadOnlyCollection<Concert>> GetConcertsAsync(CancellationToken token)
         {
-            Console.WriteLine("Ошибка: не все данные концерта заполнены.");
+            return await _concertStorage.GetAllConcertsAsync(token);
+        }
+
+        // Установка типа концерта
+        public void SetConcertType(string type)
+        {
+            _concertBuilder.Type = type;
+        }
+
+        // Добавление музыки в концерт
+        public void AddMusicToConcert(Sound sound)
+        {
+            _concertBuilder.Music.Add(sound);
+        }
+
+        // Добавление музыканта в концерт
+        public void AddMusicianToConcert(Musician musician)
+        {
+            _concertBuilder.Musicians.Add(musician);
+        }
+
+        // Установка даты концерта
+        public void SetConcertDate(string date)
+        {
+            _concertBuilder.Date = date;
+        }
+
+        // Получить текущий ConcertBuilder
+        public async Task<ConcertBuilder> GetConcertBuilderAsync()
+        {
+            return _concertBuilder;
         }
     }
-
-    public async Task DeleteConcertAsync(Concert concert, CancellationToken token)
-    {
-        await _concertStorage.DeleteConcertAsync(concert, token);
-    }
-
-    public async Task<IReadOnlyCollection<Concert>> GetConcertsAsync(CancellationToken token)
-    {
-        return await _concertStorage.GetAllConcertsAsync(token);
-    }
-
-    public void SetConcertType(string type)
-    {
-        _concertBuilder.Type = type;
-    }
-
-    public void AddMusicToConcert(Sound sound)
-    {
-        _concertBuilder.Music.Add(sound);
-    }
-
-    public void AddMusicianToConcert(Musician musician)
-    {
-        _concertBuilder.Musicians.Add(musician);
-    }
-
-    public void SetConcertDate(string date)
-    {
-        _concertBuilder.Date = date;
-    }
-
-    public async Task<ConcertBuilder> GetConcertBuilderAsync()
-    {
-        return _concertBuilder;
-    }
-   
 }

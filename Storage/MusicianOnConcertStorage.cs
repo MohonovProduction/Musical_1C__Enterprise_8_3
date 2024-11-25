@@ -27,8 +27,10 @@ namespace Storage
         {
             token.ThrowIfCancellationRequested();
             var entity = await _dbContext.MusicianOnConcerts
-                .FirstOrDefaultAsync(m => m.MusicianId == musicianOnConcert.MusicianId && m.ConcertId == musicianOnConcert.ConcertId, token);
-            
+                .FirstOrDefaultAsync(
+                    m => m.MusicianId == musicianOnConcert.MusicianId && m.ConcertId == musicianOnConcert.ConcertId,
+                    token);
+
             if (entity != null)
             {
                 _dbContext.MusicianOnConcerts.Remove(entity);

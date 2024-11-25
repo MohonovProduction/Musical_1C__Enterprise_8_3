@@ -27,8 +27,10 @@ namespace Storage
         {
             token.ThrowIfCancellationRequested();
             var entity = await _dbContext.MusicianInstruments
-                .FirstOrDefaultAsync(m => m.MusicianId == musicianInstrument.MusicianId && m.InstrumentId == musicianInstrument.InstrumentId, token);
-            
+                .FirstOrDefaultAsync(
+                    m => m.MusicianId == musicianInstrument.MusicianId &&
+                         m.InstrumentId == musicianInstrument.InstrumentId, token);
+
             if (entity != null)
             {
                 _dbContext.MusicianInstruments.Remove(entity);
@@ -37,7 +39,8 @@ namespace Storage
         }
 
         // Получение всех связей музыкантов с инструментами
-        public async Task<IReadOnlyCollection<MusicianInstrument>> GetAllMusicianInstrumentAsync(CancellationToken token)
+        public async Task<IReadOnlyCollection<MusicianInstrument>> GetAllMusicianInstrumentAsync(
+            CancellationToken token)
         {
             token.ThrowIfCancellationRequested();
             return await _dbContext.MusicianInstruments.ToListAsync(token);

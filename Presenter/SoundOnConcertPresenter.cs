@@ -1,29 +1,39 @@
 ﻿using Storage;
+using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 
-namespace Presenter;
-
-public class SoundOnConcertPresenter : ISoundOnConcertPresenter
+namespace Presenter
 {
-    private readonly ISoundOnConcertStorage _instrumentStorage;
+    public class SoundOnConcertPresenter : ISoundOnConcertPresenter
+    {
+        private readonly IStorageDataBase<SoundOnConcert> _soundOnConcertStorage;
 
-    public SoundOnConcertPresenter(ISoundOnConcertStorage instrumentStorage)
-    {
-        _instrumentStorage = instrumentStorage;
-    }
+        public SoundOnConcertPresenter(IStorageDataBase<SoundOnConcert> soundOnConcertStorage)
+        {
+            _soundOnConcertStorage = soundOnConcertStorage;
+        }
 
-    public SoundOnConcertPresenter()
-    {
-        _instrumentStorage = new SoundOnConcertStorage("Host=localhost;Port=5432;Username=postgres;Password=1111;Database=musical1c", "sound_on_concert");
-    }
-    
-    public async Task AddSoundOnConcertAsync(Guid concertId, Guid soundId, CancellationToken token)
-    {
-        var instrument = new SoundOnConcert(concertId, soundId);
-        await _instrumentStorage.AddSoundOnConcertAsync(instrument, token);
-    }
+        public SoundOnConcertPresenter(ApplicationDbContext dbContext)
+        {
+            _soundOnConcertStorage = new StorageDataBase<SoundOnConcert>(dbContext);
+        }
 
-    public async Task<IReadOnlyCollection<SoundOnConcert>> GetSoundOnConcertAsync(CancellationToken token)
-    {
-        return await _instrumentStorage.GetAllSoundOnConcertAsync(token);
+        public SoundOnConcertPresenter()
+        {}
+
+        // Добавление связи между концертом и звуком
+        public async Task AddSoundOnConcertAsync(Guid concertId, Guid soundId, CancellationToken token)
+        {
+            var soundOnConcert = new SoundOnConcert(concertId, soundId);
+            await _soundOnConcertStorage.AddAsync(soundOnConcert, token);
+        }
+
+        // Получение всех записей о связях между концертами и звуками
+        public async Task<IReadOnlyCollection<SoundOnConcert>> GetSoundOnConcertAsync(CancellationToken token)
+        {
+            return await _soundOnConcertStorage.GetListAsync(null, null, token);
+        }
     }
 }

@@ -7,5 +7,14 @@ public class Instrument
 
     // Связь с музыкантами через таблицу musician_instrument
     public ICollection<MusicianInstrument> MusicianInstruments { get; set; }
-    public Instrument() { }
+
+    public Instrument(Guid id, string name)
+    {
+        Id = id;
+        Name = name;
+    }
+
+    public Instrument()
+    {
+    }
 }

@@ -9,7 +9,7 @@ public class AddConcertView
 {
     private readonly ConcertPresenter _concertPresenter = new ConcertPresenter();
     private readonly MusicianPresenter _musicianPresenter = new MusicianPresenter();
-    private readonly MusicPresenter _musicPresenter = new MusicPresenter();
+    private readonly SoundPresenter _soundPresenter = new SoundPresenter();
     private readonly StartView _StartView = new StartView();
     
     public async Task NewConcert()
@@ -79,7 +79,7 @@ public class AddConcertView
     private async Task AddExistingMusicToConcertAsync()
     {
         var token = new CancellationToken();
-        var musicList = await _musicPresenter.GetMusicAsync(token);
+        var musicList = await _soundPresenter.GetMusicAsync(token);
 
         if (musicList.Any())
         {
@@ -117,7 +117,7 @@ public class AddConcertView
         Console.Write("Введите автора произведения: ");
         var author = Console.ReadLine();
         
-       var newMusic = await _musicPresenter.AddMusicAsync( name, author, token); // Сохраняем в систему
+       var newMusic = await _soundPresenter.AddMusicAsync( name, author, token); // Сохраняем в систему
         _concertPresenter.AddMusicToConcert(newMusic); // Добавляем в концерт
         Console.WriteLine("Новое произведение добавлено.");
     }

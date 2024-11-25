@@ -1,4 +1,4 @@
-﻿namespace Storage 
+﻿namespace Storage
 {
     public class Musician
     {
@@ -14,6 +14,15 @@
         public ICollection<MusicianInstrument> MusicianInstruments { get; set; }
 
         // Пустой конструктор для возможности создания объекта без инициализации
+
+        public Musician(Guid id, string name, string lastName, string surname)
+        {
+            Id = id;
+            Name = name;
+            Lastname = lastName;
+            Surname = surname;
+        }
+
         public Musician()
         {
         }

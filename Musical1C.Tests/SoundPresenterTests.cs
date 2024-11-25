@@ -7,16 +7,16 @@ namespace Musical1C.Tests
 {
     [TestFixture]
     [ExcludeFromCodeCoverage]
-    public class MusicPresenterTests
+    public class SoundPresenterTests
     {
         private Mock<IMusicStorage> _mockMusicStorage;
-        private MusicPresenter _presenter;
+        private SoundPresenter _presenter;
 
         [SetUp]
         public void SetUp()
         {
             _mockMusicStorage = new Mock<IMusicStorage>();
-            _presenter = new MusicPresenter(_mockMusicStorage.Object);
+            _presenter = new SoundPresenter(_mockMusicStorage.Object);
         }
 
         [Test]

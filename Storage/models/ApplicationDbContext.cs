@@ -12,7 +12,9 @@ public class ApplicationDbContext : DbContext
     public DbSet<SoundOnConcert> SoundOnConcerts { get; set; }
     public DbSet<MusicianInstrument> MusicianInstruments { get; set; }
 
-    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
+    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
+    {
+    }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

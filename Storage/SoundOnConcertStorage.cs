@@ -27,7 +27,8 @@ namespace Storage
         {
             token.ThrowIfCancellationRequested();
             var entity = await _dbContext.SoundOnConcerts
-                .FirstOrDefaultAsync(s => s.ConcertId == soundOnConcert.ConcertId && s.SoundId == soundOnConcert.SoundId, token);
+                .FirstOrDefaultAsync(
+                    s => s.ConcertId == soundOnConcert.ConcertId && s.SoundId == soundOnConcert.SoundId, token);
 
             if (entity != null)
             {

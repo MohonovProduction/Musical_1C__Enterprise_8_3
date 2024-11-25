@@ -1,29 +1,49 @@
 ﻿using Storage;
+using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 
-namespace Presenter;
-
-public class MusicianOnConcertPresenter
+namespace Presenter
 {
-    private readonly IMusicianOnConcertStorage _instrumentStorage;
+    public class MusicianOnConcertPresenter
+    {
+        private readonly IStorageDataBase<MusicianOnConcert> _musicianOnConcertStorage;
 
-    public MusicianOnConcertPresenter(IMusicianOnConcertStorage instrumentStorage)
-    {
-        _instrumentStorage = instrumentStorage;
-    }
+        // Конструктор, принимающий IStorageDataBase<MusicianOnConcert>
+        public MusicianOnConcertPresenter(IStorageDataBase<MusicianOnConcert> musicianOnConcertStorage)
+        {
+            _musicianOnConcertStorage = musicianOnConcertStorage;
+        }
 
-    public MusicianOnConcertPresenter()
-    {
-        _instrumentStorage = new MusicianOnConcertStorage("Host=localhost;Port=5432;Username=postgres;Password=1111;Database=musical1c", "musician_on_concert");
-    }
-    
-    public async Task AddMusicianOnConcertAsync(Guid concertId, Guid musicianId, CancellationToken token)
-    {
-        var instrument = new MusicianOnConcert(concertId, musicianId);
-        await _instrumentStorage.AddMusicianOnConcertAsync(instrument, token);
-    }
+        // Конструктор по умолчанию, использующий MusicianOnConcertStorage
+        public MusicianOnConcertPresenter(ApplicationDbContext dbContext)
+        {
+            _musicianOnConcertStorage = new StorageDataBase<MusicianOnConcert>(dbContext);
+        }
 
-    public async Task<IReadOnlyCollection<MusicianOnConcert>> GetMusicianOnConcertAsync(CancellationToken token)
-    {
-        return await _instrumentStorage.GetAllMusicianOnConcertAsync(token);
+        public MusicianOnConcertPresenter()
+        {
+            
+        }
+
+        // Добавление музыканта на концерт
+        public async Task AddMusicianOnConcertAsync(Guid concertId, Guid musicianId, CancellationToken token)
+        {
+            var musicianOnConcert = new MusicianOnConcert(concertId, musicianId);
+            await _musicianOnConcertStorage.AddAsync(musicianOnConcert, token);
+        }
+
+        // Получение всех музыкантов на концертах
+        public async Task<IReadOnlyCollection<MusicianOnConcert>> GetMusicianOnConcertAsync(CancellationToken token)
+        {
+            return await _musicianOnConcertStorage.GetListAsync(null, null, token);
+        }
+
+        // Удаление музыканта с концерта
+        public async Task DeleteMusicianOnConcertAsync(Guid concertId, Guid musicianId, CancellationToken token)
+        {
+            await _musicianOnConcertStorage.DeleteAsync($"ConcertId = {concertId} AND MusicianId = {musicianId}", null, token);
+        }
     }
 }

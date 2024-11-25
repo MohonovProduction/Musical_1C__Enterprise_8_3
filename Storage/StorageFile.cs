@@ -8,96 +8,96 @@ using System.Threading.Tasks;
 
 namespace Storage;
 
-public class StorageFile<T>:IStorageFile<T>
+public class StorageFile<T> : IStorageFile<T>
 {
-        private readonly string _filePath;
-        private readonly string _tableName;
+    private readonly string _filePath;
+    private readonly string _tableName;
 
-        public StorageFile(string filePath, string tableName)
+    public StorageFile(string filePath, string tableName)
+    {
+        _filePath = filePath;
+        _tableName = tableName;
+    }
+
+    private async Task<List<T>> LoadDataAsync(CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested(); // Проверяем, не был ли отменен запрос
+
+        if (!File.Exists(_filePath))
         {
-            _filePath = filePath;
-            _tableName = tableName;
+            return new List<T>();
         }
 
-        private async Task<List<T>> LoadDataAsync(CancellationToken cancellationToken)
+        var lines = await File.ReadAllLinesAsync(_filePath, cancellationToken); // Передаем токен отмены
+        cancellationToken.ThrowIfCancellationRequested();
+
+        var tableData = lines
+            .SkipWhile(line => line != _tableName + ":")
+            .Skip(1)
+            .TakeWhile(line => !string.IsNullOrWhiteSpace(line))
+            .ToList();
+
+        var options = new JsonSerializerOptions
         {
-            cancellationToken.ThrowIfCancellationRequested(); // Проверяем, не был ли отменен запрос
+            DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+        };
 
-            if (!File.Exists(_filePath))
-            {
-                return new List<T>();
-            }
+        return tableData
+            .Select(line => JsonSerializer.Deserialize<T>(line, options))
+            .ToList();
+    }
 
-            var lines = await File.ReadAllLinesAsync(_filePath, cancellationToken); // Передаем токен отмены
-            cancellationToken.ThrowIfCancellationRequested();
+    private async Task SaveDataAsync(List<T> data, CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
 
-            var tableData = lines
-                .SkipWhile(line => line != _tableName + ":")
-                .Skip(1)
-                .TakeWhile(line => !string.IsNullOrWhiteSpace(line))
-                .ToList();
+        var lines = await File.ReadAllLinesAsync(_filePath, cancellationToken); // Используем токен отмены
+        cancellationToken.ThrowIfCancellationRequested();
 
-            var options = new JsonSerializerOptions
-            {
-                DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
-            };
+        var newLines = lines
+            .TakeWhile(line => line != _tableName + ":")
+            .ToList();
 
-            return tableData
-                .Select(line => JsonSerializer.Deserialize<T>(line, options))
-                .ToList();
-        }
+        newLines.Add($"{_tableName}:");
 
-        private async Task SaveDataAsync(List<T> data, CancellationToken cancellationToken)
+        var options = new JsonSerializerOptions
         {
-            cancellationToken.ThrowIfCancellationRequested();
+            DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+        };
 
-            var lines = await File.ReadAllLinesAsync(_filePath, cancellationToken); // Используем токен отмены
-            cancellationToken.ThrowIfCancellationRequested();
+        newLines.AddRange(data.Select(item => JsonSerializer.Serialize(item, options)));
+        newLines.Add("");
 
-            var newLines = lines
-                .TakeWhile(line => line != _tableName + ":")
-                .ToList();
+        await File.WriteAllLinesAsync(_filePath, newLines, cancellationToken); // Токен для записи данных
+    }
 
-            newLines.Add($"{_tableName}:");
+    public async Task<List<T>> GetAllAsync(CancellationToken cancellationToken)
+    {
+        return await LoadDataAsync(cancellationToken);
+    }
 
-            var options = new JsonSerializerOptions
-            {
-                DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
-            };
+    public async Task AddAsync(T entity, CancellationToken cancellationToken)
+    {
+        var data = await LoadDataAsync(cancellationToken);
+        data.Add(entity);
+        await SaveDataAsync(data, cancellationToken);
+    }
 
-            newLines.AddRange(data.Select(item => JsonSerializer.Serialize(item, options)));
-            newLines.Add("");
+    public async Task DeleteAsync(Func<T, bool> predicate, CancellationToken cancellationToken)
+    {
+        var data = await LoadDataAsync(cancellationToken);
+        data = data.Where(x => !predicate(x)).ToList();
+        await SaveDataAsync(data, cancellationToken);
+    }
 
-            await File.WriteAllLinesAsync(_filePath, newLines, cancellationToken); // Токен для записи данных
-        }
-
-        public async Task<List<T>> GetAllAsync(CancellationToken cancellationToken)
+    public async Task UpdateAsync(Predicate<T> predicate, T updatedEntity, CancellationToken cancellationToken)
+    {
+        var data = await LoadDataAsync(cancellationToken);
+        var index = data.FindIndex(predicate);
+        if (index != -1)
         {
-            return await LoadDataAsync(cancellationToken);
-        }
-
-        public async Task AddAsync(T entity, CancellationToken cancellationToken)
-        {
-            var data = await LoadDataAsync(cancellationToken);
-            data.Add(entity);
+            data[index] = updatedEntity;
             await SaveDataAsync(data, cancellationToken);
         }
-
-        public async Task DeleteAsync(Func<T, bool> predicate, CancellationToken cancellationToken)
-        {
-            var data = await LoadDataAsync(cancellationToken);
-            data = data.Where(x => !predicate(x)).ToList();
-            await SaveDataAsync(data, cancellationToken);
-        }
-
-        public async Task UpdateAsync(Predicate<T> predicate, T updatedEntity, CancellationToken cancellationToken)
-        {
-            var data = await LoadDataAsync(cancellationToken);
-            var index = data.FindIndex(predicate);
-            if (index != -1)
-            {
-                data[index] = updatedEntity;
-                await SaveDataAsync(data, cancellationToken);
-            }
-        }
+    }
 }
