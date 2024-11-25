@@ -1,40 +1,47 @@
 ﻿using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
 namespace Storage
 {
     public class InstrumentStorage : IInstrumentStorage
     {
-        private readonly IStorageDataBase<Instrument> _storageDataBase;
+        private readonly ApplicationDbContext _dbContext;
 
-        public InstrumentStorage(string connectionString, string tableName)
+        public InstrumentStorage(ApplicationDbContext dbContext)
         {
-            _storageDataBase = new StorageDataBase<Instrument>(connectionString, tableName);
+            _dbContext = dbContext;
         }
 
-        public InstrumentStorage(IStorageDataBase<Instrument> storageDataBase)
-        {
-            _storageDataBase = storageDataBase;
-        }
-
+        // Добавление инструмента
         public async Task AddInstrumentAsync(Instrument instrument, CancellationToken token)
         {
             token.ThrowIfCancellationRequested();
-            await _storageDataBase.AddAsync(instrument, token);
+            await _dbContext.Instruments.AddAsync(instrument, token);
+            await _dbContext.SaveChangesAsync(token);
         }
 
+        // Удаление инструмента
         public async Task DeleteInstrumentAsync(Instrument instrument, CancellationToken token)
         {
             token.ThrowIfCancellationRequested();
-            // Удаление на основе ID или других уникальных полей инструмента
-            await _storageDataBase.DeleteAsync("id = @Id", new { Id = instrument.Id }, token);
+            _dbContext.Instruments.Remove(instrument);
+            await _dbContext.SaveChangesAsync(token);
         }
 
+        // Получение всех инструментов
         public async Task<IReadOnlyCollection<Instrument>> GetInstrumentsAsync(CancellationToken token)
         {
             token.ThrowIfCancellationRequested();
-            return await _storageDataBase.GetListAsync("", null, token); // Получаем все записи
+            return await _dbContext.Instruments.ToListAsync(token);
+        }
+
+        // Получение инструмента по ID
+        public async Task<Instrument> GetInstrumentByIdAsync(Guid id, CancellationToken token)
+        {
+            token.ThrowIfCancellationRequested();
+            return await _dbContext.Instruments.FirstOrDefaultAsync(i => i.Id == id, token);
         }
     }
 }

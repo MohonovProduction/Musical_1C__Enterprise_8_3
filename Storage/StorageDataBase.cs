@@ -1,104 +1,59 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Linq;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using Npgsql;
-using Dapper;   
-
-
+using Microsoft.EntityFrameworkCore;
 
 namespace Storage
 {
-    public class StorageDataBase<T> : IStorageDataBase<T>
+    public class StorageDataBase<T> : IStorageDataBase<T> where T : class
     {
-        public readonly string _connectionString;
-        private readonly string _tableName;
+        private readonly DbContext _dbContext;
+        private readonly DbSet<T> _dbSet;
 
-        public StorageDataBase(string connectionString, string tableName)
+        public StorageDataBase(DbContext dbContext)
         {
-            _connectionString = connectionString;
-            _tableName = tableName;
+            _dbContext = dbContext;
+            _dbSet = _dbContext.Set<T>();
         }
 
         // Получение записи по условию
         public async Task<T> GetSingleAsync(string whereClause, object parameters, CancellationToken cancellationToken)
         {
-            using var connection = new NpgsqlConnection(_connectionString);
-            var query = $"SELECT * FROM {_tableName} WHERE {whereClause}";
-            await connection.OpenAsync(cancellationToken);
-            return await connection.QueryFirstOrDefaultAsync<T>(query, parameters);
+            // Здесь вместо whereClause лучше использовать LINQ для фильтрации.
+            throw new NotImplementedException("Use LINQ to build queries instead of SQL strings.");
         }
 
         // Получение списка записей по условию
         public async Task<IReadOnlyCollection<T>> GetListAsync(string whereClause, object parameters, CancellationToken cancellationToken)
         {
-            using var connection = new NpgsqlConnection(_connectionString);
+            // Если требуется универсальная фильтрация, реализуйте парсер whereClause, но рекомендуется использовать LINQ.
+            if (string.IsNullOrEmpty(whereClause))
+                return await _dbSet.ToListAsync(cancellationToken);
 
-            var query = "";
-            
-            //GOVNOKOD ON
-            if (parameters != null)
-            {
-                query = $"SELECT * FROM {_tableName} WHERE {whereClause}";
-            }
-            else
-            {
-                query = $"SELECT * FROM {_tableName}";
-            }
-            //GOVNOKOD OFF
-            
-            await connection.OpenAsync(cancellationToken);
-            var result = await connection.QueryAsync<T>(query, parameters);
-            return result.ToList();
+            throw new NotImplementedException("Use LINQ to build queries instead of SQL strings.");
         }
 
         // Добавление записи в таблицу
         public async Task AddAsync(T entity, CancellationToken cancellationToken)
         {
-            using var connection = new NpgsqlConnection(_connectionString);
-            var insertQuery = GenerateInsertQuery(entity);
-            await connection.OpenAsync(cancellationToken);
-            await connection.ExecuteAsync(insertQuery, entity);
+            await _dbSet.AddAsync(entity, cancellationToken);
+            await _dbContext.SaveChangesAsync(cancellationToken);
         }
 
         // Удаление записей по условию
         public async Task DeleteAsync(string whereClause, object parameters, CancellationToken cancellationToken)
         {
-            using var connection = new NpgsqlConnection(_connectionString);
-            var query = $"DELETE FROM {_tableName} WHERE {whereClause}";
-            await connection.OpenAsync(cancellationToken);
-            await connection.ExecuteAsync(query, parameters);
+            // Здесь также лучше использовать LINQ.
+            throw new NotImplementedException("Use LINQ to specify which entities to delete.");
         }
 
         // Обновление записи по условию
         public async Task UpdateAsync(string whereClause, object parameters, T updatedEntity, CancellationToken cancellationToken)
         {
-            using var connection = new NpgsqlConnection(_connectionString);
-            var updateQuery = GenerateUpdateQuery(whereClause, updatedEntity);
-            await connection.OpenAsync(cancellationToken);
-            await connection.ExecuteAsync(updateQuery, updatedEntity);
-        }
-
-        // Генерация SQL-запроса для вставки данных
-        private string GenerateInsertQuery(T entity)
-        {
-            var properties = typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance).Select(p => p.Name);
-            var columns = string.Join(", ", properties);
-            var values = string.Join(", ", properties.Select(p => $"@{p}"));
-
-            return $"INSERT INTO {_tableName} ({columns}) VALUES ({values})";
-        }
-
-        // Генерация SQL-запроса для обновления данных
-        private string GenerateUpdateQuery(string whereClause, T entity)
-        {
-            var properties = typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance).Select(p => $"{p.Name} = @{p.Name}");
-            var setClause = string.Join(", ", properties);
-
-            return $"UPDATE {_tableName} SET {setClause} WHERE {whereClause}";
+            // EF автоматически отслеживает изменения объектов, поэтому их можно обновить просто изменением свойств.
+            throw new NotImplementedException("Use EF tracking to manage updates.");
         }
     }
 }

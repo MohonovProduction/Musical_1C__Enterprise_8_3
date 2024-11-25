@@ -1,35 +1,58 @@
 ﻿using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
 namespace Storage
 {
     public class ConcertStorage : IConcertStorage
     {
-        private readonly StorageDataBase<Concert> _storageDataBase;
+        private readonly DbContext _dbContext;
 
-        public ConcertStorage(string connectionString, string tableName)
+        public ConcertStorage(DbContext dbContext)
         {
-            _storageDataBase = new StorageDataBase<Concert>(connectionString, tableName);
+            _dbContext = dbContext;
         }
 
+        // Добавление концерта
         public async Task AddConcertAsync(Concert concert, CancellationToken token)
         {
             token.ThrowIfCancellationRequested();
-            await _storageDataBase.AddAsync(concert, token);
+            await _dbContext.Set<Concert>().AddAsync(concert, token);
+            await _dbContext.SaveChangesAsync(token);
         }
 
+        // Удаление концерта
         public async Task DeleteConcertAsync(Concert concert, CancellationToken token)
         {
             token.ThrowIfCancellationRequested();
-            // Удаление на основе ID или других уникальных полей концерта
-            await _storageDataBase.DeleteAsync("id = @Id", new { Id = concert.Id }, token);
+            _dbContext.Set<Concert>().Remove(concert);
+            await _dbContext.SaveChangesAsync(token);
         }
 
+        // Получение всех концертов
         public async Task<IReadOnlyCollection<Concert>> GetAllConcertsAsync(CancellationToken token)
         {
             token.ThrowIfCancellationRequested();
-            return await _storageDataBase.GetListAsync("", null, token); // Получаем все записи
+            return await _dbContext.Set<Concert>().ToListAsync(token);
+        }
+
+        // Получение концертов с фильтрацией по имени (например)
+        public async Task<IReadOnlyCollection<Concert>> GetConcertsByNameAsync(string name, CancellationToken token)
+        {
+            token.ThrowIfCancellationRequested();
+            return await _dbContext.Set<Concert>()
+                .Where(c => c.Name.Contains(name))
+                .ToListAsync(token);
+        }
+
+        // Получение концертов по типу (например)
+        public async Task<IReadOnlyCollection<Concert>> GetConcertsByTypeAsync(string type, CancellationToken token)
+        {
+            token.ThrowIfCancellationRequested();
+            return await _dbContext.Set<Concert>()
+                .Where(c => c.Type.Contains(type))
+                .ToListAsync(token);
         }
     }
 }

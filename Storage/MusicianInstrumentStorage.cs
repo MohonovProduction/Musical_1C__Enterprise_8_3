@@ -1,42 +1,46 @@
-﻿namespace Storage;
+﻿using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
-public class MusicianInstrumentStorage : IMusicianInstrumentStorage
+namespace Storage
 {
-    private readonly IStorageDataBase<MusicianInstrument> _storageDataBase;
-
-    public MusicianInstrumentStorage(string connectionString, string tableName)
+    public class MusicianInstrumentStorage : IMusicianInstrumentStorage
     {
-        _storageDataBase = new StorageDataBase<MusicianInstrument>(connectionString, tableName);
-    }
+        private readonly ApplicationDbContext _dbContext;
 
-    public MusicianInstrumentStorage(IStorageDataBase<MusicianInstrument> storageDataBase)
-    {
-        _storageDataBase = storageDataBase;
-    }
+        public MusicianInstrumentStorage(ApplicationDbContext dbContext)
+        {
+            _dbContext = dbContext;
+        }
 
-    public async Task AddMusicianInstrumentAsync(MusicianInstrument musicianInstrument, CancellationToken token)
-    {
-        token.ThrowIfCancellationRequested();
-        await _storageDataBase.AddAsync(musicianInstrument, token);
-    }
+        // Добавление связи музыканта с инструментом
+        public async Task AddMusicianInstrumentAsync(MusicianInstrument musicianInstrument, CancellationToken token)
+        {
+            token.ThrowIfCancellationRequested();
+            await _dbContext.MusicianInstruments.AddAsync(musicianInstrument, token);
+            await _dbContext.SaveChangesAsync(token);
+        }
 
-    public async Task DeleteMusicianInstrumentAsync(MusicianInstrument musicianInstrument, CancellationToken token)
-    {
-        token.ThrowIfCancellationRequested();
-        // Удаление на основе ID или других уникальных полей инструмента
-        await _storageDataBase.DeleteAsync(
-            "id = @Id", 
-            new 
+        // Удаление связи музыканта с инструментом
+        public async Task DeleteMusicianInstrumentAsync(MusicianInstrument musicianInstrument, CancellationToken token)
+        {
+            token.ThrowIfCancellationRequested();
+            var entity = await _dbContext.MusicianInstruments
+                .FirstOrDefaultAsync(m => m.MusicianId == musicianInstrument.MusicianId && m.InstrumentId == musicianInstrument.InstrumentId, token);
+            
+            if (entity != null)
             {
-                MusicianId = musicianInstrument.MusicianId, 
-                InstrumentId = musicianInstrument.InstrumentId
-            }, 
-            token);
-    }
-    
-    public async Task<IReadOnlyCollection<MusicianInstrument>> GetAllMusicianInstrumentAsync(CancellationToken token)
-    {
-        token.ThrowIfCancellationRequested();
-        return await _storageDataBase.GetListAsync("", null, token); // Получаем все записи
+                _dbContext.MusicianInstruments.Remove(entity);
+                await _dbContext.SaveChangesAsync(token);
+            }
+        }
+
+        // Получение всех связей музыкантов с инструментами
+        public async Task<IReadOnlyCollection<MusicianInstrument>> GetAllMusicianInstrumentAsync(CancellationToken token)
+        {
+            token.ThrowIfCancellationRequested();
+            return await _dbContext.MusicianInstruments.ToListAsync(token);
+        }
     }
 }

@@ -31,7 +31,7 @@ namespace Musical1C.Tests
             var music = await _presenter.AddMusicAsync(name, author, token);
 
             // Assert
-            _mockMusicStorage.Verify(s => s.AddMusicAsync(It.Is<Music>(m => m.Name == name && m.Author == author), token), Times.Once);
+            _mockMusicStorage.Verify(s => s.AddMusicAsync(It.Is<Sound>(m => m.Name == name && m.Author == author), token), Times.Once);
             Assert.IsNotNull(music);
             Assert.AreEqual(name, music.Name);
             Assert.AreEqual(author, music.Author);
@@ -41,7 +41,7 @@ namespace Musical1C.Tests
         public async Task DeleteMusicAsync_ShouldCallDeleteMusicAsync()
         {
             // Arrange
-            var music = new Music(Guid.NewGuid(), "Moonlight Sonata", "Beethoven");
+            var music = new Sound(Guid.NewGuid(), "Moonlight Sonata", "Beethoven");
             var token = CancellationToken.None;
 
             // Act
@@ -55,10 +55,10 @@ namespace Musical1C.Tests
         public async Task GetMusicAsync_ShouldReturnListOfMusic()
         {
             // Arrange
-            var expectedMusic = new List<Music>
+            var expectedMusic = new List<Sound>
             {
-                new Music(Guid.NewGuid(), "Symphony No. 5", "Beethoven"),
-                new Music(Guid.NewGuid(), "Clair de Lune", "Debussy")
+                new Sound(Guid.NewGuid(), "Symphony No. 5", "Beethoven"),
+                new Sound(Guid.NewGuid(), "Clair de Lune", "Debussy")
             };
             
             var token = CancellationToken.None;

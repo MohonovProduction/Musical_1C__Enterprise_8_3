@@ -1,35 +1,46 @@
 ﻿using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
 namespace Storage
 {
     public class MusicStorage : IMusicStorage
     {
-        private readonly StorageDataBase<Music> _storageDataBase;
+        private readonly ApplicationDbContext _dbContext;
 
-        public MusicStorage(string connectionString, string tableName)
+        public MusicStorage(ApplicationDbContext dbContext)
         {
-            _storageDataBase = new StorageDataBase<Music>(connectionString, tableName);
+            _dbContext = dbContext;
         }
 
-        public async Task AddMusicAsync(Music music, CancellationToken token)
+        // Добавление музыки (записи)
+        public async Task AddMusicAsync(Sound sound, CancellationToken token)
         {
             token.ThrowIfCancellationRequested();
-            await _storageDataBase.AddAsync(music, token);
+            await _dbContext.Sounds.AddAsync(sound, token);
+            await _dbContext.SaveChangesAsync(token);
         }
 
-        public async Task DeleteMusicAsync(Music music, CancellationToken token)
+        // Удаление музыки (записи)
+        public async Task DeleteMusicAsync(Sound sound, CancellationToken token)
         {
             token.ThrowIfCancellationRequested();
-            // Удаление на основе уникального идентификатора или другого уникального поля записи
-            await _storageDataBase.DeleteAsync("id = @Id", new { Id = music.Id }, token);
+            var entity = await _dbContext.Sounds
+                .FirstOrDefaultAsync(s => s.Id == sound.Id, token);
+
+            if (entity != null)
+            {
+                _dbContext.Sounds.Remove(entity);
+                await _dbContext.SaveChangesAsync(token);
+            }
         }
 
-        public async Task<IReadOnlyCollection<Music>> GetAllMusicAsync(CancellationToken token)
+        // Получение всех записей о музыке
+        public async Task<IReadOnlyCollection<Sound>> GetAllMusicAsync(CancellationToken token)
         {
             token.ThrowIfCancellationRequested();
-            return await _storageDataBase.GetListAsync("", null, token); // Получаем все записи
+            return await _dbContext.Sounds.ToListAsync(token);
         }
     }
 }

@@ -8,6 +8,6 @@ build_property.PlatformNeutralAssembly =
 build_property.EnforceExtendedAnalyzerRules = 
 build_property._SupportedPlatformList = Linux,macOS,Windows
 build_property.RootNamespace = ConsoleView
-build_property.ProjectDir = C:\Users\mihai\Documents\2_UNIVERSITY\Course_2\Programming\musical1C\ConsoleView\
+build_property.ProjectDir = /Users/mohonovproduction/Documents/Study/Programming/Musical_1C__Enterprise_8_3/ConsoleView/
 build_property.EnableComHosting = 
 build_property.EnableGeneratedComInterfaceComImportInterop = 

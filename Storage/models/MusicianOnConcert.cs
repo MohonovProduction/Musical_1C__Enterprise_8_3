@@ -2,8 +2,11 @@
 
 public class MusicianOnConcert
 {
-    public Guid ConcertId { get; init; }
-    public Guid MusicianId { get; init; }
+    public Guid ConcertId { get; set; }
+    public Concert Concert { get; set; }
+
+    public Guid MusicianId { get; set; }
+    public Musician Musician { get; set; }
 
     // Конструктор для инициализации всех свойств
     public MusicianOnConcert(Guid concertId, Guid musicianId)

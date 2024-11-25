@@ -58,9 +58,9 @@ public class ConcertPresenter : IConcertPresenter
         _concertBuilder.Type = type;
     }
 
-    public void AddMusicToConcert(Music music)
+    public void AddMusicToConcert(Sound sound)
     {
-        _concertBuilder.Music.Add(music);
+        _concertBuilder.Music.Add(sound);
     }
 
     public void AddMusicianToConcert(Musician musician)

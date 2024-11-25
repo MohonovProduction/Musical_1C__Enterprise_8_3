@@ -2,10 +2,16 @@
 {
     public class Concert
     {
-        public Guid Id { get; init; }
-        public string Name { get; init; }
-        public string Type { get; init; }
-        public string Date { get; init; }
+        public Guid Id { get; set; }
+        public string Name { get; set; }
+        public string Type { get; set; }
+        public string Date { get; set; }
+
+        // Связь с музыкантами через таблицу musician_on_concert
+        public ICollection<MusicianOnConcert> MusicianOnConcerts { get; set; }
+
+        // Связь с произведениями через таблицу sound_on_concert
+        public ICollection<SoundOnConcert> SoundOnConcerts { get; set; }
 
         // Конструктор для инициализации всех свойств
         public Concert(Guid id, string name, string type, string date)

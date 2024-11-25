@@ -1,42 +1,46 @@
-﻿namespace Storage;
+﻿using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
-public class MusicianOnConcertStorage : IMusicianOnConcertStorage
+namespace Storage
 {
-    private readonly StorageDataBase<MusicianOnConcert> _storageDataBase;
-
-    public MusicianOnConcertStorage(string connectionString, string tableName)
+    public class MusicianOnConcertStorage : IMusicianOnConcertStorage
     {
-        _storageDataBase = new StorageDataBase<MusicianOnConcert>(connectionString, tableName);
-    }
+        private readonly ApplicationDbContext _dbContext;
 
-    public MusicianOnConcertStorage(StorageDataBase<MusicianOnConcert> storageDataBase)
-    {
-        _storageDataBase = storageDataBase;
-    }
+        public MusicianOnConcertStorage(ApplicationDbContext dbContext)
+        {
+            _dbContext = dbContext;
+        }
 
-    public async Task AddMusicianOnConcertAsync(MusicianOnConcert musicianOnConcert, CancellationToken token)
-    {
-        token.ThrowIfCancellationRequested();
-        await _storageDataBase.AddAsync(musicianOnConcert, token);
-    }
+        // Добавление музыканта на концерт
+        public async Task AddMusicianOnConcertAsync(MusicianOnConcert musicianOnConcert, CancellationToken token)
+        {
+            token.ThrowIfCancellationRequested();
+            await _dbContext.MusicianOnConcerts.AddAsync(musicianOnConcert, token);
+            await _dbContext.SaveChangesAsync(token);
+        }
 
-    public async Task DeleteMusicianOnConcertAsync(MusicianOnConcert musicianOnConcert, CancellationToken token)
-    {
-        token.ThrowIfCancellationRequested();
-        // Удаление на основе ID или других уникальных полей инструмента
-        await _storageDataBase.DeleteAsync(
-            "id = @Id", 
-            new 
+        // Удаление музыканта с концерта
+        public async Task DeleteMusicianOnConcertAsync(MusicianOnConcert musicianOnConcert, CancellationToken token)
+        {
+            token.ThrowIfCancellationRequested();
+            var entity = await _dbContext.MusicianOnConcerts
+                .FirstOrDefaultAsync(m => m.MusicianId == musicianOnConcert.MusicianId && m.ConcertId == musicianOnConcert.ConcertId, token);
+            
+            if (entity != null)
             {
-                MusicianId = musicianOnConcert.MusicianId, 
-                ConcertId = musicianOnConcert.ConcertId
-            }, 
-            token);
-    }
-    
-    public async Task<IReadOnlyCollection<MusicianOnConcert>> GetAllMusicianOnConcertAsync(CancellationToken token)
-    {
-        token.ThrowIfCancellationRequested();
-        return await _storageDataBase.GetListAsync("", null, token); // Получаем все записи
+                _dbContext.MusicianOnConcerts.Remove(entity);
+                await _dbContext.SaveChangesAsync(token);
+            }
+        }
+
+        // Получение всех музыкантов на концертах
+        public async Task<IReadOnlyCollection<MusicianOnConcert>> GetAllMusicianOnConcertAsync(CancellationToken token)
+        {
+            token.ThrowIfCancellationRequested();
+            return await _dbContext.MusicianOnConcerts.ToListAsync(token);
+        }
     }
 }

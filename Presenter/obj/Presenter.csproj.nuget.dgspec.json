@@ -1,20 +1,21 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\mihai\\Documents\\2_UNIVERSITY\\Course_2\\Programming\\musical1C\\Presenter\\Presenter.csproj": {}
+    "/Users/mohonovproduction/Documents/Study/Programming/Musical_1C__Enterprise_8_3/Presenter/Presenter.csproj": {}
   },
   "projects": {
-    "C:\\Users\\mihai\\Documents\\2_UNIVERSITY\\Course_2\\Programming\\musical1C\\Presenter\\Presenter.csproj": {
+    "/Users/mohonovproduction/Documents/Study/Programming/Musical_1C__Enterprise_8_3/Presenter/Presenter.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\mihai\\Documents\\2_UNIVERSITY\\Course_2\\Programming\\musical1C\\Presenter\\Presenter.csproj",
+        "projectUniqueName": "/Users/mohonovproduction/Documents/Study/Programming/Musical_1C__Enterprise_8_3/Presenter/Presenter.csproj",
         "projectName": "Presenter",
-        "projectPath": "C:\\Users\\mihai\\Documents\\2_UNIVERSITY\\Course_2\\Programming\\musical1C\\Presenter\\Presenter.csproj",
-        "packagesPath": "C:\\Users\\mihai\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\mihai\\Documents\\2_UNIVERSITY\\Course_2\\Programming\\musical1C\\Presenter\\obj\\",
+        "projectPath": "/Users/mohonovproduction/Documents/Study/Programming/Musical_1C__Enterprise_8_3/Presenter/Presenter.csproj",
+        "packagesPath": "/Users/mohonovproduction/.nuget/packages/",
+        "outputPath": "/Users/mohonovproduction/Documents/Study/Programming/Musical_1C__Enterprise_8_3/Presenter/obj/",
         "projectStyle": "PackageReference",
+        "UsingMicrosoftNETSdk": false,
         "configFilePaths": [
-          "C:\\Users\\mihai\\AppData\\Roaming\\NuGet\\NuGet.Config"
+          "/Users/mohonovproduction/.nuget/NuGet/NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net8.0"
@@ -26,8 +27,8 @@
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "C:\\Users\\mihai\\Documents\\2_UNIVERSITY\\Course_2\\Programming\\musical1C\\Storage\\Storage.csproj": {
-                "projectPath": "C:\\Users\\mihai\\Documents\\2_UNIVERSITY\\Course_2\\Programming\\musical1C\\Storage\\Storage.csproj"
+              "/Users/mohonovproduction/Documents/Study/Programming/Musical_1C__Enterprise_8_3/Storage/Storage.csproj": {
+                "projectPath": "/Users/mohonovproduction/Documents/Study/Programming/Musical_1C__Enterprise_8_3/Storage/Storage.csproj"
               }
             }
           }
@@ -68,21 +69,22 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.401/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "/Users/mohonovproduction/.dotnet/sdk/8.0.404/PortableRuntimeIdentifierGraph.json"
         }
       }
     },
-    "C:\\Users\\mihai\\Documents\\2_UNIVERSITY\\Course_2\\Programming\\musical1C\\Storage\\Storage.csproj": {
+    "/Users/mohonovproduction/Documents/Study/Programming/Musical_1C__Enterprise_8_3/Storage/Storage.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\mihai\\Documents\\2_UNIVERSITY\\Course_2\\Programming\\musical1C\\Storage\\Storage.csproj",
+        "projectUniqueName": "/Users/mohonovproduction/Documents/Study/Programming/Musical_1C__Enterprise_8_3/Storage/Storage.csproj",
         "projectName": "Storage",
-        "projectPath": "C:\\Users\\mihai\\Documents\\2_UNIVERSITY\\Course_2\\Programming\\musical1C\\Storage\\Storage.csproj",
-        "packagesPath": "C:\\Users\\mihai\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\mihai\\Documents\\2_UNIVERSITY\\Course_2\\Programming\\musical1C\\Storage\\obj\\",
+        "projectPath": "/Users/mohonovproduction/Documents/Study/Programming/Musical_1C__Enterprise_8_3/Storage/Storage.csproj",
+        "packagesPath": "/Users/mohonovproduction/.nuget/packages/",
+        "outputPath": "/Users/mohonovproduction/Documents/Study/Programming/Musical_1C__Enterprise_8_3/Storage/obj/",
         "projectStyle": "PackageReference",
+        "UsingMicrosoftNETSdk": false,
         "configFilePaths": [
-          "C:\\Users\\mihai\\AppData\\Roaming\\NuGet\\NuGet.Config"
+          "/Users/mohonovproduction/.nuget/NuGet/NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net8.0"
@@ -111,13 +113,13 @@
         "net8.0": {
           "targetAlias": "net8.0",
           "dependencies": {
-            "Dapper": {
-              "target": "Package",
-              "version": "[2.1.35, )"
-            },
-            "Npgsql": {
+            "Microsoft.EntityFrameworkCore": {
               "target": "Package",
               "version": "[9.0.0, )"
+            },
+            "Npgsql.EntityFrameworkCore.PostgreSQL": {
+              "target": "Package",
+              "version": "[9.0.1, )"
             }
           },
           "imports": [
@@ -136,7 +138,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.401/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "/Users/mohonovproduction/.dotnet/sdk/8.0.404/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

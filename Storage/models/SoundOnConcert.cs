@@ -2,8 +2,11 @@
 
 public class SoundOnConcert
 {
-    public Guid ConcertId { get; init; }
-    public Guid SoundId { get; init; }
+    public Guid ConcertId { get; set; }
+    public Concert Concert { get; set; }
+
+    public Guid SoundId { get; set; }
+    public Sound Sound { get; set; }
 
     // Конструктор для инициализации всех свойств
     public SoundOnConcert(Guid concertId, Guid soundId)

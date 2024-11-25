@@ -10,7 +10,7 @@ public class ConcertBuilder
     public string Name { get; set; }
     public string Type { get; set; }
     public List<Musician> Musicians { get; } = new();
-    public List<Music> Music { get; } = new();
+    public List<Sound> Music { get; } = new();
     public string Date { get; set; }
 
     public ConcertBuilder()
@@ -18,7 +18,7 @@ public class ConcertBuilder
         
     }
 
-    private ConcertBuilder(string name, string type, List<Musician> musicians, List<Music> music, string date)
+    private ConcertBuilder(string name, string type, List<Musician> musicians, List<Sound> music, string date)
     {
         Name = name;
         Type = type;

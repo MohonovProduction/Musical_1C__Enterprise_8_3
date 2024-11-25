@@ -2,7 +2,7 @@
 
 public interface IMusicStorage
 {
-    Task AddMusicAsync(Music music, CancellationToken token);
-    Task DeleteMusicAsync(Music music, CancellationToken token);
-    Task<IReadOnlyCollection<Music>> GetAllMusicAsync(CancellationToken token);
+    Task AddMusicAsync(Sound sound, CancellationToken token);
+    Task DeleteMusicAsync(Sound sound, CancellationToken token);
+    Task<IReadOnlyCollection<Sound>> GetAllMusicAsync(CancellationToken token);
 }

@@ -1,37 +1,46 @@
-﻿namespace Storage;
+﻿using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
-public class SoundOnConcertStorage : ISoundOnConcertStorage
+namespace Storage
 {
-    private readonly IStorageDataBase<SoundOnConcert> _storageDataBase;
-
-    public SoundOnConcertStorage(string connectionString, string tableName)
+    public class SoundOnConcertStorage : ISoundOnConcertStorage
     {
-        _storageDataBase = new StorageDataBase<SoundOnConcert>(connectionString, tableName);
-    }
+        private readonly ApplicationDbContext _dbContext;
 
-    public async Task AddSoundOnConcertAsync(SoundOnConcert soundOnConcert, CancellationToken token)
-    {
-        token.ThrowIfCancellationRequested();
-        await _storageDataBase.AddAsync(soundOnConcert, token);
-    }
+        public SoundOnConcertStorage(ApplicationDbContext dbContext)
+        {
+            _dbContext = dbContext;
+        }
 
-    public async Task DeleteSoundOnConcertAsync(SoundOnConcert soundOnConcert, CancellationToken token)
-    {
-        token.ThrowIfCancellationRequested();
-        // Удаление на основе ID или других уникальных полей инструмента
-        await _storageDataBase.DeleteAsync(
-            "id = @Id", 
-            new 
+        // Добавление связи между концертом и звуком
+        public async Task AddSoundOnConcertAsync(SoundOnConcert soundOnConcert, CancellationToken token)
+        {
+            token.ThrowIfCancellationRequested();
+            await _dbContext.SoundOnConcerts.AddAsync(soundOnConcert, token);
+            await _dbContext.SaveChangesAsync(token);
+        }
+
+        // Удаление связи между концертом и звуком
+        public async Task DeleteSoundOnConcertAsync(SoundOnConcert soundOnConcert, CancellationToken token)
+        {
+            token.ThrowIfCancellationRequested();
+            var entity = await _dbContext.SoundOnConcerts
+                .FirstOrDefaultAsync(s => s.ConcertId == soundOnConcert.ConcertId && s.SoundId == soundOnConcert.SoundId, token);
+
+            if (entity != null)
             {
-                ConcertId = soundOnConcert.ConcertId, 
-                SoundId = soundOnConcert.SoundId
-            }, 
-            token);
-    }
-    
-    public async Task<IReadOnlyCollection<SoundOnConcert>> GetAllSoundOnConcertAsync(CancellationToken token)
-    {
-        token.ThrowIfCancellationRequested();
-        return await _storageDataBase.GetListAsync("", null, token); // Получаем все записи
+                _dbContext.SoundOnConcerts.Remove(entity);
+                await _dbContext.SaveChangesAsync(token);
+            }
+        }
+
+        // Получение всех записей о связях между концертами и звуками
+        public async Task<IReadOnlyCollection<SoundOnConcert>> GetAllSoundOnConcertAsync(CancellationToken token)
+        {
+            token.ThrowIfCancellationRequested();
+            return await _dbContext.SoundOnConcerts.ToListAsync(token);
+        }
     }
 }

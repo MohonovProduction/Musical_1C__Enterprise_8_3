@@ -18,20 +18,20 @@ public class MusicPresenter : IMusicPresenter
         _musicStorage = new MusicStorage("Host=localhost;Port=5432;Username=postgres;Password=1111;Database=musical1c", "sound");
     }
     
-    public async Task<Music> AddMusicAsync(string name, string author, CancellationToken token)
+    public async Task<Sound> AddMusicAsync(string name, string author, CancellationToken token)
     {
         var id = Guid.NewGuid();
-        var music = new Music(id, name, author);
+        var music = new Sound(id, name, author);
         await _musicStorage.AddMusicAsync(music, token);
         return music; // Возвращаем добавленное произведение
     }
 
-    public async Task DeleteMusicAsync(Music music, CancellationToken token)
+    public async Task DeleteMusicAsync(Sound sound, CancellationToken token)
     {
-        await _musicStorage.DeleteMusicAsync(music, token);
+        await _musicStorage.DeleteMusicAsync(sound, token);
     }
 
-    public async Task<IReadOnlyCollection<Music>> GetMusicAsync(CancellationToken token)
+    public async Task<IReadOnlyCollection<Sound>> GetMusicAsync(CancellationToken token)
     {
         var music = await _musicStorage.GetAllMusicAsync(token);
         return music;

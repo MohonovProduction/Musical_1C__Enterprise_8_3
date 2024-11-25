@@ -2,8 +2,11 @@
 {
     public class MusicianInstrument
     {
-        public Guid MusicianId { get; init; }
-        public Guid InstrumentId { get; init; }
+        public Guid MusicianId { get; set; }
+        public Musician Musician { get; set; }
+
+        public Guid InstrumentId { get; set; }
+        public Instrument Instrument { get; set; }
 
         // Конструктор для инициализации всех свойств
         public MusicianInstrument(Guid musicianId, Guid instrumentId)
