@@ -22,6 +22,10 @@ namespace Presenter
             _instrumentStorage = new StorageDataBase<Instrument>(dbContext);
         }
 
+        public InstrumentPresenter()
+        {
+        }
+
         // Добавление инструмента
         public async Task AddInstrumentAsync(Guid id, string name, CancellationToken token)
         {

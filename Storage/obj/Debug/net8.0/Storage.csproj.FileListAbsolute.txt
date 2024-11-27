@@ -31,3 +31,7 @@ C:/Users/mihai/Documents/2_UNIVERSITY/Course_2/Programming/musical1C/Storage/obj
 /Users/mohonovproduction/Documents/Study/Programming/Musical_1C__Enterprise_8_3/Storage/obj/Debug/net8.0/Storage.dll
 /Users/mohonovproduction/Documents/Study/Programming/Musical_1C__Enterprise_8_3/Storage/obj/Debug/net8.0/refint/Storage.dll
 /Users/mohonovproduction/Documents/Study/Programming/Musical_1C__Enterprise_8_3/Storage/obj/Debug/net8.0/Storage.pdb
+/Users/mohonovproduction/Documents/Study/Programming/Musical_1C__Enterprise_8_3/Storage/bin/Debug/net8.0/Storage.deps.json
+/Users/mohonovproduction/Documents/Study/Programming/Musical_1C__Enterprise_8_3/Storage/bin/Debug/net8.0/Storage.dll
+/Users/mohonovproduction/Documents/Study/Programming/Musical_1C__Enterprise_8_3/Storage/bin/Debug/net8.0/Storage.pdb
+/Users/mohonovproduction/Documents/Study/Programming/Musical_1C__Enterprise_8_3/Storage/obj/Debug/net8.0/ref/Storage.dll

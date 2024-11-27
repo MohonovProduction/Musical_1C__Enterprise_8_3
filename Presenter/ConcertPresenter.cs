@@ -4,19 +4,28 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
 namespace Presenter
 {
     public class ConcertPresenter : IConcertPresenter
     {
-        private readonly MusicianOnConcertPresenter _musicianOnConcertPresenter = new MusicianOnConcertPresenter();
-        private readonly SoundOnConcertPresenter _soundOnConcertPresenter = new SoundOnConcertPresenter();
-        private readonly IConcertStorage _concertStorage; // Используем интерфейс для гибкости
-        private ConcertBuilder _concertBuilder = new ConcertBuilder();
+        private readonly MusicianOnConcertPresenter _musicianOnConcertPresenter;
+        private readonly SoundOnConcertPresenter _soundOnConcertPresenter;
+        private readonly IConcertStorage _concertStorage;
+        private ConcertBuilder _concertBuilder;
 
-        public ConcertPresenter(IConcertStorage concertStorage)
+        public ConcertPresenter(
+            IConcertStorage concertStorage, 
+            MusicianOnConcertPresenter musicianOnConcertPresenter, 
+            SoundOnConcertPresenter soundOnConcertPresenter
+            )
         {
             _concertStorage = concertStorage ?? throw new ArgumentNullException(nameof(concertStorage));
+            _musicianOnConcertPresenter = musicianOnConcertPresenter ?? throw new ArgumentNullException(nameof(musicianOnConcertPresenter));
+            _soundOnConcertPresenter = soundOnConcertPresenter ?? throw new ArgumentNullException(nameof(soundOnConcertPresenter));
+            _concertStorage = concertStorage ?? throw new ArgumentNullException(nameof(concertStorage));
+            _concertBuilder = new ConcertBuilder();
         }
 
         // Добавление концерта

@@ -20,13 +20,26 @@ namespace Presenter
             _soundOnConcertStorage = new StorageDataBase<SoundOnConcert>(dbContext);
         }
 
-        public SoundOnConcertPresenter()
-        {}
+        public SoundOnConcertPresenter() {}
 
         // Добавление связи между концертом и звуком
         public async Task AddSoundOnConcertAsync(Guid concertId, Guid soundId, CancellationToken token)
         {
+            if (concertId == Guid.Empty)
+                throw new ArgumentNullException(nameof(concertId), "Concert ID cannot be empty.");
+            if (soundId == Guid.Empty)
+                throw new ArgumentNullException(nameof(soundId), "Sound ID cannot be empty.");
+            if (token == null)
+                throw new ArgumentNullException(nameof(token), "CancellationToken cannot be null.");
+            
             var soundOnConcert = new SoundOnConcert(concertId, soundId);
+            
+            if (soundOnConcert == null)
+                throw new ArgumentException($"soundOnConcert data cannot be null.");
+            
+            if (_soundOnConcertStorage == null)
+                throw new ArgumentNullException(nameof(_soundOnConcertStorage), "Storage data cannot be null.");
+            
             await _soundOnConcertStorage.AddAsync(soundOnConcert, token);
         }
 

@@ -28,6 +28,8 @@ namespace Presenter
             _musicianInstrumentStorage = new StorageDataBase<MusicianInstrument>(dbContext);
         }
 
+        public MusicianPresenter() {}
+
         public async Task<Musician> AddMusicianAsync(string name, string lastName, string surname, 
                                                       List<Instrument> instruments, CancellationToken token)
         {

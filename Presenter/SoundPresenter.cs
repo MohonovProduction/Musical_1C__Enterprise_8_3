@@ -22,6 +22,8 @@ namespace Presenter
             _soundStorage = new StorageDataBase<Sound>(dbContext);
         }
 
+        public SoundPresenter() {}
+
         // Добавление музыки
         public async Task<Sound> AddMusicAsync(string name, string author, CancellationToken token)
         {

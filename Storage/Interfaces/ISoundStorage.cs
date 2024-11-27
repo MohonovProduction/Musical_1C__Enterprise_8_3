@@ -1,6 +1,6 @@
 ﻿namespace Storage;
 
-public interface IMusicStorage
+public interface ISoundStorage
 {
     Task AddMusicAsync(Sound sound, CancellationToken token);
     Task DeleteMusicAsync(Sound sound, CancellationToken token);

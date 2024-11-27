@@ -22,6 +22,10 @@ namespace Presenter
             _musicianInstrumentStorage = new StorageDataBase<MusicianInstrument>(dbContext);
         }
 
+        public MusicianInstrumentPresenter()
+        {
+        }
+
         // Добавление связи музыканта с инструментом
         public async Task AddMusicianInstrumentAsync(Guid musicianId, Guid instrumentId, CancellationToken token)
         {

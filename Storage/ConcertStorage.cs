@@ -9,7 +9,7 @@ namespace Storage
     {
         private readonly DbContext _dbContext;
 
-        public ConcertStorage(DbContext dbContext)
+        public ConcertStorage(ApplicationDbContext dbContext)
         {
             _dbContext = dbContext;
         }

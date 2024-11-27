@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
+using Spectre.Console;
 
 [ExcludeFromCodeCoverage]
 public class Menu
@@ -25,10 +26,10 @@ public class Menu
     // Метод для отображения меню
     public void ShowMenu()
     {
-        Console.WriteLine("Меню:");
+        AnsiConsole.MarkupLine("[bold] > Меню:[/]");
         foreach (var label in _menuLabels)
         {
-            Console.WriteLine($"{label.Key}. {label.Value}");
+            Console.WriteLine($" {label.Key} {label.Value}");
         }
     }
 
@@ -38,7 +39,7 @@ public class Menu
         int choice;
         do
         {
-            Console.Write("Выберите действие: ");
+            AnsiConsole.MarkupLine("[bold] < Выберите действие:[/]");
         }
         while (!int.TryParse(Console.ReadLine(), out choice));
 

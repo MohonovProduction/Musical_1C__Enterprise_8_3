@@ -9,13 +9,13 @@ namespace Musical1C.Tests
     [ExcludeFromCodeCoverage]
     public class SoundPresenterTests
     {
-        private Mock<IMusicStorage> _mockMusicStorage;
+        private Mock<ISoundStorage> _mockMusicStorage;
         private SoundPresenter _presenter;
 
         [SetUp]
         public void SetUp()
         {
-            _mockMusicStorage = new Mock<IMusicStorage>();
+            _mockMusicStorage = new Mock<ISoundStorage>();
             _presenter = new SoundPresenter(_mockMusicStorage.Object);
         }
 

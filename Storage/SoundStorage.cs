@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Storage
 {
-    public class SoundStorage : IMusicStorage
+    public class SoundStorage : ISoundStorage
     {
         private readonly ApplicationDbContext _dbContext;
 
