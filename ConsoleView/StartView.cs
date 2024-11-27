@@ -57,16 +57,26 @@ public class StartView
     {
         var token = new CancellationToken();
         AnsiConsole.MarkupLine(Formatter.Heading("История концертов"));
-            
+        
         // Получаем список концертов
         var concerts = await _concertPresenter.GetConcertsAsync(token);
-            
+        
         if (concerts.Any())
         {
+            // Создаем таблицу
+            var table = new Table();
+            table.AddColumn("Название");
+            table.AddColumn("Дата");
+            table.AddColumn("Тип");
+
+            // Добавляем строки в таблицу для каждого концерта
             foreach (var concert in concerts)
             {
-                Console.WriteLine($"Название: {concert.Name} | Дата: {concert.Date} | Тип: {concert.Type}");
+                table.AddRow(concert.Name, concert.Date, concert.Type);
             }
+
+            // Отображаем таблицу
+            AnsiConsole.Write(table);
         }
         else
         {
@@ -88,6 +98,7 @@ public class StartView
         await menuView.ExecuteMenuChoice();
     }
 
+
     public async Task FindMusicianAsync()
     {
         AnsiConsole.MarkupLine(Formatter.InputString("Введите имя музыканта для поиска:"));
@@ -108,17 +119,26 @@ public class StartView
         var musiciansInstruments = await GetMusiciansInstrumentsAsync(foundMusicians, token);
         var instruments = await _instrumentPresenter.GetInstrumentsAsync(token);
 
-        // Выводим информацию о музыкантах и их инструментах
-        AnsiConsole.MarkupLine(Formatter.Heading("Найденные музыканты"));
+        // Создаем таблицу для отображения информации о музыкантах и их инструментах
+        var table = new Table();
+        table.AddColumn("Имя");
+        table.AddColumn("Фамилия");
+        table.AddColumn("Инструменты");
+
+        // Заполняем таблицу данными о найденных музыкантах
         foreach (var musician in foundMusicians)
         {
             var musicianInstruments = GetMusicianInstruments(musician, musiciansInstruments, instruments);
-            AnsiConsole.MarkupLine($"[bold] · Имя: {musician.Name} {musician.Lastname} / Инструменты: {string.Join(", ", musicianInstruments)}[/]");
+            table.AddRow(musician.Name, musician.Lastname, string.Join(", ", musicianInstruments));
         }
+
+        // Выводим таблицу
+        AnsiConsole.Write(table);
 
         // Меню для перехода назад
         await ShowMenuAsync();
     }
+
 
         // Получаем инструменты для найденных музыкантов
     private async Task<IReadOnlyCollection<MusicianInstrument>> GetMusiciansInstrumentsAsync(List<Musician> foundMusicians, CancellationToken token)
@@ -180,21 +200,21 @@ public class StartView
 
         private async Task SelectTypeConcertAsync()
         {
-            Console.WriteLine(Formatter.InputString("Выберите тип концерта:"));
-            Console.WriteLine("1. Групповой");
-            Console.WriteLine("2. Общий");
-            Console.Write("\nВведите номер: ");
+            AnsiConsole.MarkupLine(Formatter.InputString("Выберите тип концерта:"));
+            AnsiConsole.MarkupLine("1. Групповой");
+            AnsiConsole.MarkupLine("2. Общий");
+            AnsiConsole.MarkupLine("\nВведите номер: ");
 
             if (int.TryParse(Console.ReadLine(), out int type) && (type == 1 || type == 2))
             {
                 var concertType = type == 1 ? "Групповой" : "Общий";
                 _concertPresenter.SetConcertType(concertType);
-                Console.WriteLine(Formatter.OutputString("Тип концерта успешно выбран"));
+                AnsiConsole.MarkupLine(Formatter.OutputString("Тип концерта успешно выбран"));
                 await NewConcertAsync();
             }
             else
             {
-                Console.WriteLine(Formatter.OutputString("Некорректный выбор. Попробуйте снова"));
+                AnsiConsole.MarkupLine(Formatter.OutputString("Некорректный выбор. Попробуйте снова"));
                 await SelectTypeConcertAsync();
             }
         }
@@ -364,16 +384,26 @@ public class StartView
 
         private async Task AddDateToConcertAsync()
         {
-            AnsiConsole.MarkupLine(Formatter.InputString("Введите дату концерта (формат: ГГГГ-ММ-ДД): "));
-            if (DateTime.TryParse(Console.ReadLine(), out var concertDate))
+            DateTime concertDate;
+            bool validDate = false;
+
+            while (!validDate)
             {
-                _concertPresenter.SetConcertDate(concertDate.ToString("yyyy-MM-dd"));
-                AnsiConsole.MarkupLine(Formatter.OutputString("Дата концерта успешно добавлена."));
+                AnsiConsole.MarkupLine(Formatter.InputString("Введите дату концерта (формат: ГГГГ-ММ-ДД): "));
+                var input = Console.ReadLine();
+
+                if (DateTime.TryParse(input, out concertDate))
+                {
+                    _concertPresenter.SetConcertDate(concertDate.ToString("yyyy-MM-dd"));
+                    AnsiConsole.MarkupLine(Formatter.OutputString("Дата концерта успешно добавлена."));
+                    validDate = true;  // Выход из цикла, если дата введена правильно
+                }
+                else
+                {
+                    AnsiConsole.MarkupLine(Formatter.OutputString("Некорректный формат даты. Пожалуйста, попробуйте снова."));
+                }
             }
-            else
-            {
-                AnsiConsole.MarkupLine(Formatter.OutputString("Некорректный формат даты."));
-            }
+
             await NewConcertAsync();
         }
 
@@ -400,15 +430,25 @@ public class StartView
 
             if (!string.IsNullOrWhiteSpace(concertName))
             {
-                await _concertPresenter.AddConcertAsync(concertName, token);
-                AnsiConsole.MarkupLine(Formatter.OutputString("Концерт успешно сохранен."));
+                var res = await _concertPresenter.AddConcertAsync(concertName, token);
+
+                if (res)
+                {
+                    AnsiConsole.MarkupLine(Formatter.OutputString("Концерт успешно сохранен."));  
+                    await RunAsync();
+                }
+                else
+                {
+                    AnsiConsole.MarkupLine(Formatter.OutputString("Не все поля концерта заполнены."));
+                    await NewConcertAsync();
+                }
+
+                
             }
             else
             {
                 AnsiConsole.MarkupLine(Formatter.OutputString("Название концерта не может быть пустым."));
             }
-
-            await RunAsync();
         }
 
 }

@@ -27,12 +27,19 @@ namespace Presenter
 
         public ConcertBuilder BuildConcert(string name)
         {
-            if (string.IsNullOrWhiteSpace(name) || string.IsNullOrWhiteSpace(Type) || string.IsNullOrWhiteSpace(Date))
+            // Проверка на пустые обязательные поля
+            if (string.IsNullOrWhiteSpace(name) ||
+                string.IsNullOrWhiteSpace(Type) ||
+                string.IsNullOrWhiteSpace(Date) ||
+                Musicians.Count == 0 ||  // Проверка, чтобы список музыкантов не был пустым
+                Music.Count == 0)        // Проверка, чтобы список музыки не был пустым
             {
                 return null; // Вернуть null, если не заполнены обязательные поля
             }
 
+            // Возвращаем новый объект ConcertBuilder с заполненными данными
             return new ConcertBuilder(name, this.Type, this.Musicians, this.Music, this.Date);
         }
+
     }
 }

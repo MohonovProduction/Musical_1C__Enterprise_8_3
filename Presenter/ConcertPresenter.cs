@@ -29,34 +29,49 @@ namespace Presenter
         }
 
         // Добавление концерта
-        public async Task AddConcertAsync(string name, CancellationToken token)
+        public async Task<bool> AddConcertAsync(string name, CancellationToken token)
         {
+            // Строим концерт с помощью ConcertBuilder
             var fullConcert = _concertBuilder.BuildConcert(name);
 
+            // Проверяем, удалось ли создать концерт
             if (fullConcert != null)
             {
-                var concert = new Concert(Guid.NewGuid(), fullConcert.Name, fullConcert.Type, fullConcert.Date);
-                await _concertStorage.AddConcertAsync(concert, token);
-
-                foreach (var music in fullConcert.Music)
+                try
                 {
-                    token.ThrowIfCancellationRequested();
-                    await _soundOnConcertPresenter.AddSoundOnConcertAsync(concert.Id, music.Id, token);
-                }
+                    var concert = new Concert(Guid.NewGuid(), fullConcert.Name, fullConcert.Type, fullConcert.Date);
+                    await _concertStorage.AddConcertAsync(concert, token);
 
-                foreach (var musician in fullConcert.Musicians)
+                    // Добавляем произведения
+                    foreach (var music in fullConcert.Music)
+                    {
+                        token.ThrowIfCancellationRequested();
+                        await _soundOnConcertPresenter.AddSoundOnConcertAsync(concert.Id, music.Id, token);
+                    }
+
+                    // Добавляем музыкантов
+                    foreach (var musician in fullConcert.Musicians)
+                    {
+                        token.ThrowIfCancellationRequested();
+                        await _musicianOnConcertPresenter.AddMusicianOnConcertAsync(concert.Id, musician.Id, token);
+                    }
+
+                    _concertBuilder = new ConcertBuilder(); // Сбрасываем builder после сохранения
+
+                    return true; // Возвращаем true в случае успешного выполнения
+                }
+                catch (Exception ex)
                 {
-                    token.ThrowIfCancellationRequested();
-                    await _musicianOnConcertPresenter.AddMusicianOnConcertAsync(concert.Id, musician.Id, token);
+                    return false; // Возвращаем false в случае ошибки
                 }
-
-                _concertBuilder = new ConcertBuilder(); // сброс builder после сохранения
             }
             else
             {
                 Console.WriteLine("Ошибка: не все данные концерта заполнены.");
+                return false; // Возвращаем false, если концерт не был построен
             }
         }
+
 
         // Удаление концерта
         public async Task DeleteConcertAsync(Concert concert, CancellationToken token)
