@@ -409,46 +409,70 @@ public class StartView
 
 
         private async Task SaveConcertAsync()
+{
+    CancellationToken token = new CancellationToken();
+    var concInf = await _concertPresenter.GetConcertBuilderAsync();
+
+    // Вывод информации о выбранных произведениях
+    AnsiConsole.MarkupLine(Formatter.Heading("Выбранные произведения:"));
+    foreach (var concInfMusic in concInf.Music)
+    {
+        AnsiConsole.MarkupLine($" · {concInfMusic.Name}");
+    }
+
+    // Вывод информации о выбранных музыкантах
+    AnsiConsole.MarkupLine(Formatter.Heading("Выбранные музыканты:"));
+    foreach (var concInfMusicians in concInf.Musicians)
+    {
+        AnsiConsole.MarkupLine($" · {concInfMusicians.Name} {concInfMusicians.Lastname}");
+    }
+
+    // Вывод выбранных полей в таблице
+    AnsiConsole.MarkupLine(Formatter.Heading("Выбранные данные концерта:"));
+    
+    var table = new Table();
+    table.AddColumn("Поле");
+    table.AddColumn("Значение");
+
+    // Заполняем таблицу данными
+    table.AddRow("Название", concInf.Name ?? "Не указано");
+    table.AddRow("Тип", concInf.Type ?? "Не указано");
+    table.AddRow("Дата", concInf.Date ?? "Не указана");
+
+    // Выводим информацию о музыкантах
+    var musicians = string.Join(", ", concInf.Musicians.Select(m => $"{m.Name} {m.Lastname}"));
+    table.AddRow("Музыканты", string.IsNullOrEmpty(musicians) ? "Не указаны" : musicians);
+
+    // Выводим информацию о произведениях
+    var music = string.Join(", ", concInf.Music.Select(m => m.Name));
+    table.AddRow("Произведения", string.IsNullOrEmpty(music) ? "Не указаны" : music);
+
+    AnsiConsole.Render(table);
+
+    // Запрос на ввод названия концерта
+    AnsiConsole.MarkupLine(Formatter.InputString("Введите название концерта:"));
+    var concertName = Console.ReadLine();
+
+    if (!string.IsNullOrWhiteSpace(concertName))
+    {
+        var res = await _concertPresenter.AddConcertAsync(concertName, token);
+
+        if (res)
         {
-            CancellationToken token = new CancellationToken();
-            var concInf = await _concertPresenter.GetConcertBuilderAsync();
-
-            AnsiConsole.MarkupLine(Formatter.Heading("Выбранные произведения:"));
-            foreach (var concInfMusic in concInf.Music)
-            {
-                AnsiConsole.MarkupLine($" · {concInfMusic.Name}");
-            }
-
-            AnsiConsole.MarkupLine(Formatter.Heading("Выбранные музыканты:"));
-            foreach (var concInfMusicians in concInf.Musicians)
-            {
-                AnsiConsole.MarkupLine($" · {concInfMusicians.Name} {concInfMusicians.Lastname}");
-            }
-
-            AnsiConsole.MarkupLine(Formatter.InputString("Введите название концерта:"));
-            var concertName = Console.ReadLine();
-
-            if (!string.IsNullOrWhiteSpace(concertName))
-            {
-                var res = await _concertPresenter.AddConcertAsync(concertName, token);
-
-                if (res)
-                {
-                    AnsiConsole.MarkupLine(Formatter.OutputString("Концерт успешно сохранен."));  
-                    await RunAsync();
-                }
-                else
-                {
-                    AnsiConsole.MarkupLine(Formatter.OutputString("Не все поля концерта заполнены."));
-                    await NewConcertAsync();
-                }
-
-                
-            }
-            else
-            {
-                AnsiConsole.MarkupLine(Formatter.OutputString("Название концерта не может быть пустым."));
-            }
+            AnsiConsole.MarkupLine(Formatter.OutputString("Концерт успешно сохранен."));
+            await RunAsync();
         }
+        else
+        {
+            AnsiConsole.MarkupLine(Formatter.OutputString("Не все поля концерта заполнены."));
+            await NewConcertAsync();
+        }
+    }
+    else
+    {
+        AnsiConsole.MarkupLine(Formatter.OutputString("Название концерта не может быть пустым."));
+    }
+}
+
 
 }
