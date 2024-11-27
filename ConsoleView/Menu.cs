@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
+using ConsoleView;
 using Spectre.Console;
 
 [ExcludeFromCodeCoverage]
@@ -39,7 +40,7 @@ public class Menu
         int choice;
         do
         {
-            AnsiConsole.MarkupLine("[bold] < Выберите действие:[/]");
+            AnsiConsole.MarkupLine(Formatter.InputString("Выберите действие:"));
         }
         while (!int.TryParse(Console.ReadLine(), out choice));
 
