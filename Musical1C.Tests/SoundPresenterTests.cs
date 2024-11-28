@@ -1,77 +1,71 @@
-﻿using System.Diagnostics.CodeAnalysis;
 using Moq;
 using Presenter;
 using Storage;
 
-namespace Musical1C.Tests
+namespace Musical1C.Tests;
+
+[TestFixture]
+public class SoundPresenterTests
 {
-    [TestFixture]
-    [ExcludeFromCodeCoverage]
-    public class SoundPresenterTests
+    private Mock<IStorageDataBase<Sound>> _mockSoundStorage;
+    private SoundPresenter _presenter;
+
+    [SetUp]
+    public void SetUp()
     {
-        private Mock<ISoundStorage> _mockMusicStorage;
-        private SoundPresenter _presenter;
+        _mockSoundStorage = new Mock<IStorageDataBase<Sound>>();
+        _presenter = new SoundPresenter(_mockSoundStorage.Object);
+    }
 
-        [SetUp]
-        public void SetUp()
+    [Test]
+    public async Task AddMusicAsync_ShouldAddSoundToStorage()
+    {
+        // Arrange
+        var name = "Symphony No. 9";
+        var author = "Beethoven";
+        var cancellationToken = CancellationToken.None;
+
+        Sound capturedSound = null!;
+        _mockSoundStorage
+            .Setup(m => m.AddAsync(It.IsAny<Sound>(), cancellationToken))
+            .Callback<Sound, CancellationToken>((sound, token) => capturedSound = sound)
+            .Returns(Task.CompletedTask);
+
+        // Act
+        var result = await _presenter.AddMusicAsync(name, author, cancellationToken);
+
+        // Assert
+        Assert.That(result.Name, Is.EqualTo(name));
+        Assert.That(result.Author, Is.EqualTo(author));
+        Assert.That(result.Id, Is.Not.EqualTo(Guid.Empty));
+
+        _mockSoundStorage.Verify(m => m.AddAsync(It.IsAny<Sound>(), cancellationToken), Times.Once);
+        Assert.That(capturedSound, Is.Not.Null);
+        Assert.That(capturedSound.Name, Is.EqualTo(name));
+        Assert.That(capturedSound.Author, Is.EqualTo(author));
+    }
+
+    [Test]
+    public async Task GetMusicAsync_ShouldReturnListOfSounds()
+    {
+        // Arrange
+        var sounds = new List<Sound>
         {
-            _mockMusicStorage = new Mock<ISoundStorage>();
-            _presenter = new SoundPresenter(_mockMusicStorage.Object);
-        }
+            new Sound(Guid.NewGuid(), "Symphony No. 9", "Beethoven"),
+            new Sound(Guid.NewGuid(), "Piano Sonata No. 14", "Beethoven")
+        };
 
-        [Test]
-        public async Task AddMusicAsync_ShouldCallAddMusicAsync()
-        {
-            // Arrange
-            var name = "Symphony No. 5";
-            var author = "Beethoven";
-            var token = CancellationToken.None;
+        var cancellationToken = CancellationToken.None;
 
-            // Act
-            var music = await _presenter.AddMusicAsync(name, author, token);
+        _mockSoundStorage
+            .Setup(m => m.GetListAsync(null!, null!, cancellationToken))
+            .ReturnsAsync(sounds);
 
-            // Assert
-            _mockMusicStorage.Verify(s => s.AddMusicAsync(It.Is<Sound>(m => m.Name == name && m.Author == author), token), Times.Once);
-            Assert.IsNotNull(music);
-            Assert.AreEqual(name, music.Name);
-            Assert.AreEqual(author, music.Author);
-        }
+        // Act
+        var result = await _presenter.GetMusicAsync(cancellationToken);
 
-        [Test]
-        public async Task DeleteMusicAsync_ShouldCallDeleteMusicAsync()
-        {
-            // Arrange
-            var music = new Sound(Guid.NewGuid(), "Moonlight Sonata", "Beethoven");
-            var token = CancellationToken.None;
-
-            // Act
-            await _presenter.DeleteMusicAsync(music, token);
-
-            // Assert
-            _mockMusicStorage.Verify(s => s.DeleteMusicAsync(music, token), Times.Once);
-        }
-
-        [Test]
-        public async Task GetMusicAsync_ShouldReturnListOfMusic()
-        {
-            // Arrange
-            var expectedMusic = new List<Sound>
-            {
-                new Sound(Guid.NewGuid(), "Symphony No. 5", "Beethoven"),
-                new Sound(Guid.NewGuid(), "Clair de Lune", "Debussy")
-            };
-            
-            var token = CancellationToken.None;
-
-            _mockMusicStorage.Setup(s => s.GetAllMusicAsync(token))
-                .ReturnsAsync(expectedMusic);
-
-            // Act
-            var result = await _presenter.GetMusicAsync(token);
-
-            // Assert
-            Assert.AreEqual(expectedMusic.Count, result.Count);
-            CollectionAssert.AreEquivalent(expectedMusic, result);
-        }
+        // Assert
+        Assert.That(result, Is.EqualTo(sounds));
+        _mockSoundStorage.Verify(m => m.GetListAsync(null!, null!, cancellationToken), Times.Once);
     }
 }

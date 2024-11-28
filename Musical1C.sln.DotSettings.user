@@ -3,26 +3,42 @@
 	<s:String x:Key="/Default/Environment/AssemblyExplorer/XmlDocument/@EntryValue">&lt;AssemblyExplorer&gt;&#xD;
   &lt;Assembly Path="C:\Users\mihai\Documents\2_UNIVERSITY\Course_2\Programming\musical1C\Storage\bin\Debug\net8.0\Storage.dll" /&gt;&#xD;
 &lt;/AssemblyExplorer&gt;</s:String>
+	<s:String x:Key="/Default/Environment/Highlighting/HighlightingSourceSnapshotLocation/@EntryValue">/Users/mohonovproduction/Library/Caches/JetBrains/Rider2024.3/resharper-host/temp/Rider/vAny/CoverageData/_Musical1C.2065257865/Snapshot/snapshot.utdcvr</s:String>
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=2818a080_002D28f6_002D47f4_002Dad57_002D5d0977547e60/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="InstrumentPresenterTests #3" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
+  &lt;TestAncestor&gt;
+    &lt;TestId&gt;NUnit3x::75426457-5666-4535-99DD-07B67E6E43EB::net8.0::Tests.InstrumentPresenterTests&lt;/TestId&gt;
+  &lt;/TestAncestor&gt;
+&lt;/SessionState&gt;</s:String>
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=2a8c8482_002D5a03_002D401b_002Db651_002D2902253648fd/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="InstrumentPresenterTests #4" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
+  &lt;TestAncestor&gt;
+    &lt;TestId&gt;NUnit3x::75426457-5666-4535-99DD-07B67E6E43EB::net8.0::Tests.InstrumentPresenterTests&lt;/TestId&gt;
+  &lt;/TestAncestor&gt;
+&lt;/SessionState&gt;</s:String>
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=62ba0a60_002D0ef3_002D4e0e_002D9e7f_002Ddc4457cc3cc2/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="InstrumentPresenterTests #2" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
+  &lt;TestAncestor&gt;
+    &lt;TestId&gt;NUnit3x::75426457-5666-4535-99DD-07B67E6E43EB::net8.0::Musical1C.Tests.InstrumentPresenterTests&lt;/TestId&gt;
+  &lt;/TestAncestor&gt;
+&lt;/SessionState&gt;</s:String>
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=6420766a_002D0bcb_002D439c_002D8ce9_002D2dd452e75f2f/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="All tests from &amp;lt;Musical1C.Tests&amp;gt;" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
+  &lt;Project Location="/Users/mohonovproduction/Documents/Study/Programming/Musical_1C__Enterprise_8_3/Musical1C.Tests" Presentation="&amp;lt;Musical1C.Tests&amp;gt;" /&gt;
+&lt;/SessionState&gt;</s:String>
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=864c9193_002D44ac_002D4a8c_002D820a_002Db181b1370e2d/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="Session" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
+  &lt;And&gt;
+    &lt;Namespace&gt;Musical1C.Tests&lt;/Namespace&gt;
+    &lt;Project Location="/Users/mohonovproduction/Documents/Study/Programming/Musical_1C__Enterprise_8_3/Musical1C.Tests" Presentation="&amp;lt;Musical1C.Tests&amp;gt;" /&gt;
+  &lt;/And&gt;
+&lt;/SessionState&gt;</s:String>
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=d201a302_002D409f_002D4134_002Da5c2_002Dd76868be496f/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="InstrumentPresenterTests" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
+  &lt;TestAncestor&gt;
+    &lt;TestId&gt;NUnit3x::75426457-5666-4535-99DD-07B67E6E43EB::net8.0::Musical1C.Tests.InstrumentPresenterTests&lt;/TestId&gt;
+  &lt;/TestAncestor&gt;
+&lt;/SessionState&gt;</s:String>
 	
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=0f81f79f_002Dfede_002D48ef_002Dbfbc_002D0b1b9f6c2c7f/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="InstrumentPresenterTests #2" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
-  &lt;TestAncestor&gt;
-    &lt;TestId&gt;NUnit3x::75426457-5666-4535-99DD-07B67E6E43EB::net8.0::Musical1C.Tests.InstrumentPresenterTests&lt;/TestId&gt;
-  &lt;/TestAncestor&gt;
-&lt;/SessionState&gt;</s:String>
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=282aba1a_002D0ee0_002D4186_002D95eb_002D87bc4f3904c6/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="All tests from Solution" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
-  &lt;Solution /&gt;
-&lt;/SessionState&gt;</s:String>
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=610a486c_002D314f_002D4bfb_002D870c_002Dd485fbe53e52/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="All tests from Solution #2" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
-  &lt;Solution /&gt;
-&lt;/SessionState&gt;</s:String>
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=6576d787_002D58bb_002D4aac_002D973d_002Df36619a4c943/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="All tests from Solution" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
-  &lt;Solution /&gt;
-&lt;/SessionState&gt;</s:String>
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=80d4d84b_002Df8c6_002D44c0_002D8754_002D6d54d5aa3441/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="InstrumentPresenterTests" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
-  &lt;TestAncestor&gt;
-    &lt;TestId&gt;NUnit3x::75426457-5666-4535-99DD-07B67E6E43EB::net8.0::Musical1C.Tests.InstrumentPresenterTests&lt;/TestId&gt;
-  &lt;/TestAncestor&gt;
-&lt;/SessionState&gt;</s:String>
+	
+	
+	
+	
+	
 	
 	
 	

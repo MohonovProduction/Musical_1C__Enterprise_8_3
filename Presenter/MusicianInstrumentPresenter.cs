@@ -13,7 +13,7 @@ namespace Presenter
         // Конструктор, принимающий IStorageDataBase<MusicianInstrument>
         public MusicianInstrumentPresenter(IStorageDataBase<MusicianInstrument> musicianInstrumentStorage)
         {
-            _musicianInstrumentStorage = musicianInstrumentStorage;
+            _musicianInstrumentStorage = musicianInstrumentStorage ?? throw new ArgumentNullException(nameof(musicianInstrumentStorage));
         }
 
         // Конструктор по умолчанию, использующий MusicianInstrumentStorage

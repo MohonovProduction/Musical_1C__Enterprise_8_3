@@ -1,4 +1,4 @@
-﻿using Moq;
+using Moq;
 using Presenter;
 using Storage;
 
@@ -7,57 +7,69 @@ namespace Musical1C.Tests
     [TestFixture]
     public class MusicianOnConcertPresenterTests
     {
-        private Mock<IMusicianOnConcertStorage> _mockStorage;
+        private Mock<IStorageDataBase<MusicianOnConcert>> _mockStorage;
         private MusicianOnConcertPresenter _presenter;
-        private CancellationToken _cancellationToken;
 
         [SetUp]
-        public void SetUp()
+        public void Setup()
         {
-            _mockStorage = new Mock<IMusicianOnConcertStorage>();
+            _mockStorage = new Mock<IStorageDataBase<MusicianOnConcert>>();
             _presenter = new MusicianOnConcertPresenter(_mockStorage.Object);
-            _cancellationToken = new CancellationToken();
         }
 
         [Test]
-        public async Task AddMusicianOnConcertAsync_ShouldCallAddMusicianOnConcertAsyncOnce()
+        public async Task AddMusicianOnConcertAsync_ShouldCallAddAsync()
         {
             // Arrange
             var concertId = Guid.NewGuid();
             var musicianId = Guid.NewGuid();
-            var musicianOnConcert = new MusicianOnConcert(concertId, musicianId);
+            var token = CancellationToken.None;
 
             // Act
-            await _presenter.AddMusicianOnConcertAsync(concertId, musicianId, _cancellationToken);
+            await _presenter.AddMusicianOnConcertAsync(concertId, musicianId, token);
 
             // Assert
-            _mockStorage.Verify(
-                storage => storage.AddMusicianOnConcertAsync(
-                    It.Is<MusicianOnConcert>(moc => moc.ConcertId == concertId && moc.MusicianId == musicianId),
-                    _cancellationToken),
-                Times.Once);
+            _mockStorage.Verify(s => s.AddAsync(It.Is<MusicianOnConcert>(
+                moc => moc.ConcertId == concertId && moc.MusicianId == musicianId), token), Times.Once);
         }
 
         [Test]
-        public async Task GetMusicianOnConcertAsync_ShouldCallGetAllMusicianOnConcertAsyncOnce()
+        public async Task GetMusicianOnConcertAsync_ShouldReturnListFromStorage()
         {
             // Arrange
-            var musicianOnConcertList = new List<MusicianOnConcert>
+            var token = CancellationToken.None;
+            var musicianOnConcerts = new List<MusicianOnConcert>
             {
                 new MusicianOnConcert(Guid.NewGuid(), Guid.NewGuid()),
                 new MusicianOnConcert(Guid.NewGuid(), Guid.NewGuid())
             };
 
             _mockStorage
-                .Setup(storage => storage.GetAllMusicianOnConcertAsync(_cancellationToken))
-                .ReturnsAsync(musicianOnConcertList);
+                .Setup(s => s.GetListAsync(null, null, token))
+                .ReturnsAsync(musicianOnConcerts);
 
             // Act
-            var result = await _presenter.GetMusicianOnConcertAsync(_cancellationToken);
+            var result = await _presenter.GetMusicianOnConcertAsync(token);
 
             // Assert
-            Assert.AreEqual(musicianOnConcertList, result);
-            _mockStorage.Verify(storage => storage.GetAllMusicianOnConcertAsync(_cancellationToken), Times.Once);
+            Assert.AreEqual(musicianOnConcerts, result);
+            _mockStorage.Verify(s => s.GetListAsync(null, null, token), Times.Once);
+        }
+
+        [Test]
+        public async Task DeleteMusicianOnConcertAsync_ShouldCallDeleteAsync()
+        {
+            // Arrange
+            var concertId = Guid.NewGuid();
+            var musicianId = Guid.NewGuid();
+            var token = CancellationToken.None;
+
+            // Act
+            await _presenter.DeleteMusicianOnConcertAsync(concertId, musicianId, token);
+
+            // Assert
+            _mockStorage.Verify(s => s.DeleteAsync(
+                $"ConcertId = {concertId} AND MusicianId = {musicianId}", null, token), Times.Once);
         }
     }
 }
