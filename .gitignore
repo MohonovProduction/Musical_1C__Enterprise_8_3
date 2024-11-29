@@ -1,0 +1,81 @@
+# Основные файлы и папки
+bin/
+obj/
+[Bb]uild/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+*.userprefs
+
+# Лог-файлы и файлы блокировки
+*.log
+*.lock
+*.pid
+*.seed
+*.swp
+*.swo
+
+# Конфигурационные файлы IDE
+.vscode/
+.idea/
+*.csproj.user
+*.rsuser
+*.sln.docstates
+.DS_Store
+*.orig
+
+# Папки, создаваемые для временных файлов
+*.vs/
+_ReSharper.*
+*.[Dd]ev[Tt]emp/
+.ncrunch*
+*.localhistory
+
+# Файлы и папки тестов
+TestResults/
+*.coverage
+*.coveragexml
+*.trx
+
+# Файлы NuGet
+*.nupkg
+*.snupkg
+packages/
+.nuget/
+
+# Файлы временного кеша
+*.cache
+*.bak
+*.old
+*.orig
+
+# Файлы и папки ОС
+Thumbs.db
+ehthumbs.db
+*.stackdump
+$RECYCLE.BIN/
+
+# Конфигурационные файлы MacOS
+*.DS_Store
+.AppleDouble
+.LSOverride
+
+# Конфигурационные файлы Linux
+*~
+.idea/
+
+# Конфигурационные файлы Windows
+desktop.ini
+$RECYCLE.BIN/
+
+# Файлы сборки Docker
+docker-compose.override.yml
+
+# Файлы конфиденциальной информации
+appsettings.Development.json
+appsettings.Local.json
+
+# Конкретно для Rider
+.idea/
+.idea_modules/
