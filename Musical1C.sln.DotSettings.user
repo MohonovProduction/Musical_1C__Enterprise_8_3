@@ -14,6 +14,9 @@
     &lt;TestId&gt;NUnit3x::75426457-5666-4535-99DD-07B67E6E43EB::net8.0::Tests.InstrumentPresenterTests&lt;/TestId&gt;
   &lt;/TestAncestor&gt;
 &lt;/SessionState&gt;</s:String>
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=5cf527a2_002D252a_002D4d39_002Dbcb1_002D50c399f9f03d/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="All tests from Solution" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
+  &lt;Solution /&gt;
+&lt;/SessionState&gt;</s:String>
 	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=62ba0a60_002D0ef3_002D4e0e_002D9e7f_002Ddc4457cc3cc2/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="InstrumentPresenterTests #2" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
   &lt;TestAncestor&gt;
     &lt;TestId&gt;NUnit3x::75426457-5666-4535-99DD-07B67E6E43EB::net8.0::Musical1C.Tests.InstrumentPresenterTests&lt;/TestId&gt;

@@ -10,21 +10,18 @@ namespace Presenter
     {
         private readonly IStorageDataBase<Instrument> _instrumentStorage;
 
-        // Конструктор, принимающий IStorageDataBase<Instrument>
+        // Constructor expecting IStorageDataBase<Instrument>
         public InstrumentPresenter(IStorageDataBase<Instrument> instrumentStorage)
         {
             _instrumentStorage = instrumentStorage;
         }
 
-        // Конструктор по умолчанию, использующий InstrumentStorage
+        // Constructor expecting ApplicationDbContext
         public InstrumentPresenter(ApplicationDbContext dbContext)
         {
             _instrumentStorage = new StorageDataBase<Instrument>(dbContext);
         }
-
-        public InstrumentPresenter()
-        {
-        }
+        
 
         // Добавление инструмента
         public async Task AddInstrumentAsync(Guid id, string name, CancellationToken token)

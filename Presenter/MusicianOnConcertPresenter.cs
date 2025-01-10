@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Presenter
 {
-    public class MusicianOnConcertPresenter
+    public class MusicianOnConcertPresenter : IMusicianOnConcertPresenter
     {
         private readonly IStorageDataBase<MusicianOnConcert> _musicianOnConcertStorage;
 

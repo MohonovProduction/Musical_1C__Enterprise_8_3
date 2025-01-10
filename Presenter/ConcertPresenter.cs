@@ -10,21 +10,20 @@ namespace Presenter
 {
     public class ConcertPresenter : IConcertPresenter
     {
-        private readonly MusicianOnConcertPresenter _musicianOnConcertPresenter;
-        private readonly SoundOnConcertPresenter _soundOnConcertPresenter;
+        private readonly IMusicianOnConcertPresenter _musicianOnConcertPresenter;
+        private readonly ISoundOnConcertPresenter _soundOnConcertPresenter;
         private readonly IConcertStorage _concertStorage;
         private ConcertBuilder _concertBuilder;
 
         public ConcertPresenter(
             IConcertStorage concertStorage, 
-            MusicianOnConcertPresenter musicianOnConcertPresenter, 
-            SoundOnConcertPresenter soundOnConcertPresenter
-            )
+            IMusicianOnConcertPresenter musicianOnConcertPresenter, 
+            ISoundOnConcertPresenter soundOnConcertPresenter
+        )
         {
             _concertStorage = concertStorage ?? throw new ArgumentNullException(nameof(concertStorage));
             _musicianOnConcertPresenter = musicianOnConcertPresenter ?? throw new ArgumentNullException(nameof(musicianOnConcertPresenter));
             _soundOnConcertPresenter = soundOnConcertPresenter ?? throw new ArgumentNullException(nameof(soundOnConcertPresenter));
-            _concertStorage = concertStorage ?? throw new ArgumentNullException(nameof(concertStorage));
             _concertBuilder = new ConcertBuilder();
         }
 
@@ -62,6 +61,7 @@ namespace Presenter
                 }
                 catch (Exception ex)
                 {
+                    Console.WriteLine($"Ошибка при добавлении концерта: {ex.Message}");
                     return false; // Возвращаем false в случае ошибки
                 }
             }
@@ -71,7 +71,6 @@ namespace Presenter
                 return false; // Возвращаем false, если концерт не был построен
             }
         }
-
 
         // Удаление концерта
         public async Task DeleteConcertAsync(Concert concert, CancellationToken token)

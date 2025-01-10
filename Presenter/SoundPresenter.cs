@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Presenter
 {
-    public class SoundPresenter : IMusicPresenter
+    public class SoundPresenter : ISoundPresenter
     {
         private readonly IStorageDataBase<Sound> _soundStorage;
 
