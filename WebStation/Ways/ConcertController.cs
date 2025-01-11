@@ -80,7 +80,7 @@ namespace WebApi.Controllers
 
                 return CreatedAtAction(nameof(GetConcertById), new { id = concert.Id }, concert);
             }
-            catch (Exception ex)
+            catch (Exception ex) // how to catch and pack all exceptions ? 
             {
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
@@ -198,24 +198,5 @@ namespace WebApi.Controllers
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
-    }
-
-    public class ConcertRequest
-    {
-        public string Name { get; set; }
-        public string Type { get; set; }
-        public string Date { get; set; }
-        public List<MusicianIdRequest> Musicians { get; set; }
-        public List<SoundIdRequest> Sounds { get; set; }
-    }
-
-    public class MusicianIdRequest
-    {
-        public Guid Id { get; set; }
-    }
-
-    public class SoundIdRequest
-    {
-        public Guid Id { get; set; }
     }
 }

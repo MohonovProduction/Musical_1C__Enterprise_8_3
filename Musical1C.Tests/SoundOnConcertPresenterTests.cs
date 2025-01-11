@@ -1,24 +1,30 @@
 using Moq;
+using NUnit.Framework;
 using Presenter;
 using Storage;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Musical1C.Tests
 {
     [TestFixture]
     public class SoundOnConcertPresenterTests
     {
-        private Mock<IStorageDataBase<SoundOnConcert>> _mockStorage;
+        private Mock<IStorageDataBase<SoundOnConcert>> _mockSoundOnConcertStorage;
         private SoundOnConcertPresenter _presenter;
 
         [SetUp]
         public void Setup()
         {
-            _mockStorage = new Mock<IStorageDataBase<SoundOnConcert>>();
-            _presenter = new SoundOnConcertPresenter(_mockStorage.Object);
+            _mockSoundOnConcertStorage = new Mock<IStorageDataBase<SoundOnConcert>>();
+            _presenter = new SoundOnConcertPresenter(_mockSoundOnConcertStorage.Object);
         }
 
         [Test]
-        public async Task AddSoundOnConcertAsync_ValidInput_ShouldCallAddAsync()
+        public async Task AddSoundOnConcertAsync_ShouldAddSoundOnConcert()
         {
             // Arrange
             var concertId = Guid.NewGuid();
@@ -29,34 +35,38 @@ namespace Musical1C.Tests
             await _presenter.AddSoundOnConcertAsync(concertId, soundId, token);
 
             // Assert
-            _mockStorage.Verify(s => s.AddAsync(It.Is<SoundOnConcert>(
+            _mockSoundOnConcertStorage.Verify(s => s.AddAsync(It.Is<SoundOnConcert>(
                 soc => soc.ConcertId == concertId && soc.SoundId == soundId), token), Times.Once);
         }
 
         [Test]
-        public void AddSoundOnConcertAsync_EmptyConcertId_ShouldThrowArgumentNullException()
+        public void AddSoundOnConcertAsync_ShouldThrowArgumentException_WhenConcertIdIsEmpty()
         {
             // Arrange
+            var concertId = Guid.Empty;
             var soundId = Guid.NewGuid();
             var token = CancellationToken.None;
 
             // Act & Assert
-            var ex = Assert.ThrowsAsync<ArgumentNullException>(async () => 
-                await _presenter.AddSoundOnConcertAsync(Guid.Empty, soundId, token));
-            Assert.AreEqual("concertId", ex.ParamName);
+            var exception = Assert.ThrowsAsync<ArgumentException>(async () =>
+                await _presenter.AddSoundOnConcertAsync(concertId, soundId, token));
+
+            Assert.That(exception.Message, Is.EqualTo("Concert ID cannot be empty. (Parameter 'concertId')"));
         }
 
         [Test]
-        public void AddSoundOnConcertAsync_EmptySoundId_ShouldThrowArgumentNullException()
+        public void AddSoundOnConcertAsync_ShouldThrowArgumentException_WhenSoundIdIsEmpty()
         {
             // Arrange
             var concertId = Guid.NewGuid();
+            var soundId = Guid.Empty;
             var token = CancellationToken.None;
 
             // Act & Assert
-            var ex = Assert.ThrowsAsync<ArgumentNullException>(async () => 
-                await _presenter.AddSoundOnConcertAsync(concertId, Guid.Empty, token));
-            Assert.AreEqual("soundId", ex.ParamName);
+            var exception = Assert.ThrowsAsync<ArgumentException>(async () =>
+                await _presenter.AddSoundOnConcertAsync(concertId, soundId, token));
+
+            Assert.That(exception.Message, Is.EqualTo("Sound ID cannot be empty. (Parameter 'soundId')"));
         }
 
         [Test]
@@ -70,8 +80,8 @@ namespace Musical1C.Tests
                 new SoundOnConcert(Guid.NewGuid(), Guid.NewGuid())
             };
 
-            _mockStorage
-                .Setup(s => s.GetListAsync(null, null, token))
+            _mockSoundOnConcertStorage
+                .Setup(s => s.GetListAsync(It.IsAny<Func<IQueryable<SoundOnConcert>, IQueryable<SoundOnConcert>>>(), token))
                 .ReturnsAsync(soundOnConcerts);
 
             // Act
@@ -79,7 +89,26 @@ namespace Musical1C.Tests
 
             // Assert
             Assert.AreEqual(soundOnConcerts, result);
-            _mockStorage.Verify(s => s.GetListAsync(null, null, token), Times.Once);
+            _mockSoundOnConcertStorage.Verify(s => s.GetListAsync(It.IsAny<Func<IQueryable<SoundOnConcert>, IQueryable<SoundOnConcert>>>(), token), Times.Once);
         }
+
+        // [Test]
+        // public async Task DeleteSoundOnConcertAsync_ShouldCallDeleteAsync()
+        // {
+        //     // Arrange
+        //     var concertId = Guid.NewGuid();
+        //     var soundId = Guid.NewGuid();
+        //     var token = CancellationToken.None;
+        //
+        //     // Act
+        //     await _presenter.DeleteSoundOnConcertAsync(concertId, soundId, token);
+        //
+        //     // Assert
+        //     _mockSoundOnConcertStorage.Verify(s => s.DeleteAsync(
+        //         It.Is<Func<IQueryable<SoundOnConcert>, IQueryable<SoundOnConcert>>>(query => 
+        //             query.Invoke(It.IsAny<IQueryable<SoundOnConcert>>())
+        //                  .Any(s => s.ConcertId == concertId && s.SoundId == soundId)),
+        //         token), Times.Once);
+        // }
     }
 }

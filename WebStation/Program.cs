@@ -27,10 +27,10 @@ namespace WebAPI
                     {
                         // Add database context and other dependencies
                         services.AddDbContext<ApplicationDbContext>(options =>
-                            options.UseNpgsql("Host=localhost;Port=5432;Username=postgres;Password=1111;Database=musical1c"));
+                            options.UseNpgsql("Host=localhost;Port=5432;Username=postgres;Password=1111;Database=musical1c"));//??? shit spot
 
                         // Add your storages
-                        services.AddScoped<IConcertStorage, ConcertStorage>();
+                        services.AddScoped<IConcertStorage, ConcertStorage>(); // scoped ??
                         services.AddScoped<IInstrumentStorage, InstrumentStorage>();
                         services.AddScoped<ISoundStorage, SoundStorage>();
                         services.AddScoped<IMusicianInstrumentStorage, MusicianInstrumentStorage>();

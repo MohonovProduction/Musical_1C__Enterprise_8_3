@@ -1,142 +1,132 @@
 using Moq;
-using NUnit.Framework;
 using Presenter;
 using Storage;
-using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Musical1C.Tests
 {
     [TestFixture]
     public class ConcertPresenterTests
     {
-        private Mock<IConcertStorage> _mockConcertStorage;
-        private Mock<MusicianOnConcertPresenter> _mockMusicianOnConcertPresenter;
-        private Mock<SoundOnConcertPresenter> _mockSoundOnConcertPresenter;
+        private Mock<IStorageDataBase<Concert>> _mockConcertStorage;
+        private Mock<IStorageDataBase<MusicianOnConcert>> _mockMusicianOnConcertStorage;
+        private Mock<IStorageDataBase<SoundOnConcert>> _mockSoundOnConcertStorage;
         private ConcertPresenter _concertPresenter;
 
         [SetUp]
-        public void SetUp()
+        public void Setup()
         {
-            _mockConcertStorage = new Mock<IConcertStorage>();
-            _mockMusicianOnConcertPresenter = new Mock<MusicianOnConcertPresenter>();
-            _mockSoundOnConcertPresenter = new Mock<SoundOnConcertPresenter>();
+            _mockConcertStorage = new Mock<IStorageDataBase<Concert>>();
+            _mockMusicianOnConcertStorage = new Mock<IStorageDataBase<MusicianOnConcert>>();
+            _mockSoundOnConcertStorage = new Mock<IStorageDataBase<SoundOnConcert>>();
             _concertPresenter = new ConcertPresenter(
-                _mockConcertStorage.Object,
-                _mockMusicianOnConcertPresenter.Object,
-                _mockSoundOnConcertPresenter.Object
-            );
+                _mockConcertStorage.Object, 
+                _mockMusicianOnConcertStorage.Object, 
+                _mockSoundOnConcertStorage.Object);
         }
-        
+
         [Test]
-        public async Task AddConcertAsync_ShouldReturnFalse_WhenExceptionOccurs()
+        public async Task AddConcertAsync_ShouldAddConcert_WithMusiciansAndSounds()
         {
             // Arrange
+            var concertName = "Concert 1";
+            var concertType = "Rock";
+            var concertDate = "2025-01-01";
+            var musicians = new List<Musician> { new Musician { Id = Guid.NewGuid() } };
+            var sounds = new List<Sound> { new Sound { Id = Guid.NewGuid() } };
             var cancellationToken = CancellationToken.None;
-            var concertName = "Symphony Concert";
 
-            _mockConcertStorage.Setup(x => x.AddConcertAsync(It.IsAny<Concert>(), cancellationToken))
-                .Throws(new Exception("Database error"));
-
-            // Act
-            var result = await _concertPresenter.AddConcertAsync(concertName, cancellationToken);
-
-            // Assert
-            Assert.IsFalse(result);
-        }
-
-        [Test]
-        public void SetConcertType_ShouldSetTypeCorrectly()
-        {
-            // Arrange
-            var concertType = "Classical";
-
-            // Act
-            _concertPresenter.SetConcertType(concertType);
-
-            // Assert
-            var concertBuilder = _concertPresenter.GetConcertBuilderAsync().Result;
-            Assert.AreEqual(concertType, concertBuilder.Type);
-        }
-
-        [Test]
-        public void AddMusicToConcert_ShouldAddMusicCorrectly()
-        {
-            // Arrange
-            var sound = new Sound(Guid.NewGuid(), "Beethoven Symphony", "Beethoven");
+            var concert = new Concert(Guid.NewGuid(), concertName, concertType, concertDate);
             
+            _mockConcertStorage
+                .Setup(s => s.AddAsync(It.IsAny<Concert>(), cancellationToken))
+                .Returns(Task.CompletedTask);
+
+            _mockMusicianOnConcertStorage
+                .Setup(s => s.AddAsync(It.IsAny<MusicianOnConcert>(), cancellationToken))
+                .Returns(Task.CompletedTask);
+
+            _mockSoundOnConcertStorage
+                .Setup(s => s.AddAsync(It.IsAny<SoundOnConcert>(), cancellationToken))
+                .Returns(Task.CompletedTask);
+
             // Act
-            _concertPresenter.AddMusicToConcert(sound);
+            var result = await _concertPresenter.AddConcertAsync(concertName, concertType, concertDate, musicians, sounds, cancellationToken);
 
             // Assert
-            var concertBuilder = _concertPresenter.GetConcertBuilderAsync().Result;
-            Assert.Contains(sound, concertBuilder.Music.ToList());
+            Assert.IsNotNull(result);
+            _mockConcertStorage.Verify(s => s.AddAsync(It.IsAny<Concert>(), cancellationToken), Times.Once);
+            _mockMusicianOnConcertStorage.Verify(s => s.AddAsync(It.IsAny<MusicianOnConcert>(), cancellationToken), Times.Once);
+            _mockSoundOnConcertStorage.Verify(s => s.AddAsync(It.IsAny<SoundOnConcert>(), cancellationToken), Times.Once);
         }
 
         [Test]
-        public void AddMusicianToConcert_ShouldAddMusicianCorrectly()
+        public async Task DeleteConcertAsync_ShouldRemoveConcert_WithMusiciansAndSounds()
         {
             // Arrange
-            var musician = new Musician(Guid.NewGuid(), "John", "Smith", "Jones");
-
-            // Act
-            _concertPresenter.AddMusicianToConcert(musician);
-
-            // Assert
-            var concertBuilder = _concertPresenter.GetConcertBuilderAsync().Result;
-            Assert.Contains(musician, concertBuilder.Musicians.ToList());
-        }
-
-        [Test]
-        public async Task DeleteConcertAsync_ShouldDeleteConcertSuccessfully()
-        {
-            // Arrange
-            var concert = new Concert(Guid.NewGuid(), "Symphony Concert", "Classical", "2024-12-25");
+            var concert = new Concert(Guid.NewGuid(), "Concert to delete", "Rock", "2025-01-01");
             var cancellationToken = CancellationToken.None;
-            _mockConcertStorage.Setup(x => x.DeleteConcertAsync(concert, cancellationToken))
+
+            _mockConcertStorage
+                .Setup(s => s.DeleteAsync(It.IsAny<Func<IQueryable<Concert>, IQueryable<Concert>>>(), cancellationToken))
+                .Returns(Task.CompletedTask);
+
+            _mockMusicianOnConcertStorage
+                .Setup(s => s.DeleteAsync(It.IsAny<Func<IQueryable<MusicianOnConcert>, IQueryable<MusicianOnConcert>>>(), cancellationToken))
+                .Returns(Task.CompletedTask);
+
+            _mockSoundOnConcertStorage
+                .Setup(s => s.DeleteAsync(It.IsAny<Func<IQueryable<SoundOnConcert>, IQueryable<SoundOnConcert>>>(), cancellationToken))
                 .Returns(Task.CompletedTask);
 
             // Act
             await _concertPresenter.DeleteConcertAsync(concert, cancellationToken);
 
             // Assert
-            _mockConcertStorage.Verify(x => x.DeleteConcertAsync(concert, cancellationToken), Times.Once);
+            _mockConcertStorage.Verify(s => s.DeleteAsync(It.IsAny<Func<IQueryable<Concert>, IQueryable<Concert>>>(), cancellationToken), Times.Once);
+            _mockMusicianOnConcertStorage.Verify(s => s.DeleteAsync(It.IsAny<Func<IQueryable<MusicianOnConcert>, IQueryable<MusicianOnConcert>>>(), cancellationToken), Times.Once);
+            _mockSoundOnConcertStorage.Verify(s => s.DeleteAsync(It.IsAny<Func<IQueryable<SoundOnConcert>, IQueryable<SoundOnConcert>>>(), cancellationToken), Times.Once);
         }
 
         [Test]
-        public void SetConcertDate_ShouldSetDateCorrectly()
-        {
-            // Arrange
-            var date = "2024-12-25";
-
-            // Act
-            _concertPresenter.SetConcertDate(date);
-
-            // Assert
-            var concertBuilder = _concertPresenter.GetConcertBuilderAsync().Result;
-            Assert.AreEqual(date, concertBuilder.Date);
-        }
-
-        [Test]
-        public async Task GetConcertsAsync_ShouldReturnConcerts()
+        public async Task GetConcertsAsync_ShouldReturnConcertsWithDetails()
         {
             // Arrange
             var cancellationToken = CancellationToken.None;
-            var concerts = new List<Concert>
-            {
-                new Concert(Guid.NewGuid(), "Concert 1", "Classical", "2024-12-25"),
-                new Concert(Guid.NewGuid(), "Concert 2", "Jazz", "2024-12-26")
+            var concerts = new List<Concert> {
+                new Concert(Guid.NewGuid(), "Concert 1", "Rock", "2025-01-01"),
+                new Concert(Guid.NewGuid(), "Concert 2", "Classical", "2025-02-01")
             };
-            _mockConcertStorage.Setup(x => x.GetAllConcertsAsync(cancellationToken))
+
+            _mockConcertStorage
+                .Setup(s => s.GetListAsync(It.IsAny<Func<IQueryable<Concert>, IQueryable<Concert>>>(), cancellationToken))
                 .ReturnsAsync(concerts);
 
             // Act
             var result = await _concertPresenter.GetConcertsAsync(cancellationToken);
 
             // Assert
-            Assert.AreEqual(concerts.Count, result.Count);
+            Assert.AreEqual(2, result.Count);
+            _mockConcertStorage.Verify(s => s.GetListAsync(It.IsAny<Func<IQueryable<Concert>, IQueryable<Concert>>>(), cancellationToken), Times.Once);
+        }
+
+        [Test]
+        public async Task GetConcertByIdAsync_ShouldReturnCorrectConcert()
+        {
+            // Arrange
+            var concertId = Guid.NewGuid();
+            var concert = new Concert(concertId, "Concert 1", "Rock", "2025-01-01");
+            var cancellationToken = CancellationToken.None;
+
+            _mockConcertStorage
+                .Setup(s => s.GetSingleAsync(It.IsAny<Func<IQueryable<Concert>, IQueryable<Concert>>>(), cancellationToken))
+                .ReturnsAsync(concert);
+
+            // Act
+            var result = await _concertPresenter.GetConcertByIdAsync(concertId, cancellationToken);
+
+            // Assert
+            Assert.AreEqual(concertId, result.Id);
+            _mockConcertStorage.Verify(s => s.GetSingleAsync(It.IsAny<Func<IQueryable<Concert>, IQueryable<Concert>>>(), cancellationToken), Times.Once);
         }
     }
 }
