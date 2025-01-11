@@ -23,11 +23,11 @@ namespace WebAPI
             Host.CreateDefaultBuilder(args)
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
-                    webBuilder.ConfigureServices(services =>
+                    webBuilder.ConfigureServices((context, services) =>
                     {
                         // Add database context and other dependencies
                         services.AddDbContext<ApplicationDbContext>(options =>
-                            options.UseNpgsql("Host=localhost;Port=5432;Username=postgres;Password=1111;Database=musical1c"));//??? shit spot
+                            options.UseNpgsql(context.Configuration.GetConnectionString("DefaultConnection")));//??? shit spot
 
                         // Add your storages
                         services.AddScoped<IConcertStorage, ConcertStorage>(); // scoped ??
