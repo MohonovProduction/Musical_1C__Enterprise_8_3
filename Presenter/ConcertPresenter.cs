@@ -10,113 +10,118 @@ namespace Presenter
 {
     public class ConcertPresenter : IConcertPresenter
     {
-        private readonly IMusicianOnConcertPresenter _musicianOnConcertPresenter;
-        private readonly ISoundOnConcertPresenter _soundOnConcertPresenter;
-        private readonly IConcertStorage _concertStorage;
-        private ConcertBuilder _concertBuilder;
+        private readonly IStorageDataBase<Concert> _concertStorage;
+        private readonly IStorageDataBase<MusicianOnConcert> _musicianOnConcertStorage;
+        private readonly IStorageDataBase<SoundOnConcert> _soundOnConcertStorage;
 
-        public ConcertPresenter(
-            IConcertStorage concertStorage, 
-            IMusicianOnConcertPresenter musicianOnConcertPresenter, 
-            ISoundOnConcertPresenter soundOnConcertPresenter
-        )
+        // Конструктор, который принимает IStorageDataBase<Concert>
+        public ConcertPresenter(IStorageDataBase<Concert> concertStorage, 
+                                IStorageDataBase<MusicianOnConcert> musicianOnConcertStorage,
+                                IStorageDataBase<SoundOnConcert> soundOnConcertStorage)
         {
-            _concertStorage = concertStorage ?? throw new ArgumentNullException(nameof(concertStorage));
-            _musicianOnConcertPresenter = musicianOnConcertPresenter ?? throw new ArgumentNullException(nameof(musicianOnConcertPresenter));
-            _soundOnConcertPresenter = soundOnConcertPresenter ?? throw new ArgumentNullException(nameof(soundOnConcertPresenter));
-            _concertBuilder = new ConcertBuilder();
+            _concertStorage = concertStorage;
+            _musicianOnConcertStorage = musicianOnConcertStorage;
+            _soundOnConcertStorage = soundOnConcertStorage;
         }
 
-        // Добавление концерта
-        public async Task<bool> AddConcertAsync(string name, CancellationToken token)
+        // Конструктор, который принимает ApplicationDbContext
+        public ConcertPresenter(ApplicationDbContext dbContext)
         {
-            // Строим концерт с помощью ConcertBuilder
-            var fullConcert = _concertBuilder.BuildConcert(name);
-
-            // Проверяем, удалось ли создать концерт
-            if (fullConcert != null)
-            {
-                try
-                {
-                    var concert = new Concert(Guid.NewGuid(), fullConcert.Name, fullConcert.Type, fullConcert.Date);
-                    await _concertStorage.AddConcertAsync(concert, token);
-
-                    // Добавляем произведения
-                    foreach (var music in fullConcert.Music)
-                    {
-                        token.ThrowIfCancellationRequested();
-                        await _soundOnConcertPresenter.AddSoundOnConcertAsync(concert.Id, music.Id, token);
-                    }
-
-                    // Добавляем музыкантов
-                    foreach (var musician in fullConcert.Musicians)
-                    {
-                        token.ThrowIfCancellationRequested();
-                        await _musicianOnConcertPresenter.AddMusicianOnConcertAsync(concert.Id, musician.Id, token);
-                    }
-
-                    _concertBuilder = new ConcertBuilder(); // Сбрасываем builder после сохранения
-
-                    return true; // Возвращаем true в случае успешного выполнения
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Ошибка при добавлении концерта: {ex.Message}");
-                    return false; // Возвращаем false в случае ошибки
-                }
-            }
-            else
-            {
-                Console.WriteLine("Ошибка: не все данные концерта заполнены.");
-                return false; // Возвращаем false, если концерт не был построен
-            }
+            _concertStorage = new StorageDataBase<Concert>(dbContext);
+            _musicianOnConcertStorage = new StorageDataBase<MusicianOnConcert>(dbContext);
+            _soundOnConcertStorage = new StorageDataBase<SoundOnConcert>(dbContext);
         }
 
-        // Удаление концерта
+        // Добавление концерта с музыкантами и произведениями
+        public async Task<Concert> AddConcertAsync(string name, string type, string date, 
+                                                   List<Musician> musicians, List<Sound> sounds, 
+                                                   CancellationToken token)
+        {
+            var id = Guid.NewGuid();
+            var concert = new Concert(id, name, type, date);
+
+            // Добавление концерта в базу данных
+            await _concertStorage.AddAsync(concert, token);
+
+            // Добавление музыкантов на концерт
+            foreach (var musician in musicians)
+            {
+                var musicianOnConcert = new MusicianOnConcert(concert.Id, musician.Id);
+                await _musicianOnConcertStorage.AddAsync(musicianOnConcert, token);
+            }
+
+            // Добавление произведений на концерт
+            foreach (var sound in sounds)
+            {
+                var soundOnConcert = new SoundOnConcert(concert.Id, sound.Id);
+                await _soundOnConcertStorage.AddAsync(soundOnConcert, token);
+            }
+
+            return concert; // Возвращаем добавленный концерт
+        }
+
+        // Удаление концерта и его связей с музыкантами и произведениями
         public async Task DeleteConcertAsync(Concert concert, CancellationToken token)
         {
-            if (concert == null)
-            {
-                throw new ArgumentNullException(nameof(concert));
-            }
+            // Удаление концерта
+            await _concertStorage.DeleteAsync(query => query.Where(c => c.Id == concert.Id), token);
 
-            await _concertStorage.DeleteConcertAsync(concert, token);
+            // Удаление связей с музыкантами
+            await _musicianOnConcertStorage.DeleteAsync(query => query.Where(moc => moc.ConcertId == concert.Id), token);
+
+            // Удаление связей с произведениями
+            await _soundOnConcertStorage.DeleteAsync(query => query.Where(soc => soc.ConcertId == concert.Id), token);
         }
 
-        // Получение всех концертов
+        // Получение списка всех концертов с музыкантами и произведениями
         public async Task<IReadOnlyCollection<Concert>> GetConcertsAsync(CancellationToken token)
         {
-            return await _concertStorage.GetAllConcertsAsync(token);
+            return await _concertStorage.GetListAsync(query => 
+                    query.Include(c => c.MusicianOnConcerts)
+                        .ThenInclude(moc => moc.Musician) // Включаем музыкантов концерта
+                        .Include(c => c.SoundOnConcerts)
+                        .ThenInclude(soc => soc.Sound), // Включаем произведения концерта
+                token);
         }
 
-        // Установка типа концерта
-        public void SetConcertType(string type)
+        // Получение концерта по ID с музыкантами и произведениями
+        public async Task<Concert> GetConcertByIdAsync(Guid id, CancellationToken token)
         {
-            _concertBuilder.Type = type;
+            return await _concertStorage.GetSingleAsync(query => 
+                    query.Where(c => c.Id == id)
+                        .Include(c => c.MusicianOnConcerts)
+                        .ThenInclude(moc => moc.Musician) // Включаем музыкантов концерта
+                        .Include(c => c.SoundOnConcerts)
+                        .ThenInclude(soc => soc.Sound), // Включаем произведения концерта
+                token);
         }
 
-        // Добавление музыки в концерт
-        public void AddMusicToConcert(Sound sound)
+        // Добавление музыканта на концерт
+        public async Task AddMusicianToConcertAsync(Concert concert, Musician musician, CancellationToken token)
         {
-            _concertBuilder.Music.Add(sound);
+            var musicianOnConcert = new MusicianOnConcert(musician.Id, concert.Id);
+            await _musicianOnConcertStorage.AddAsync(musicianOnConcert, token);
         }
 
-        // Добавление музыканта в концерт
-        public void AddMusicianToConcert(Musician musician)
+        // Удаление музыканта с концерта
+        public async Task RemoveMusicianFromConcertAsync(Concert concert, Musician musician, CancellationToken token)
         {
-            _concertBuilder.Musicians.Add(musician);
+            await _musicianOnConcertStorage.DeleteAsync(query => 
+                query.Where(moc => moc.ConcertId == concert.Id && moc.MusicianId == musician.Id), token);
         }
 
-        // Установка даты концерта
-        public void SetConcertDate(string date)
+        // Добавление произведения (звука) на концерт
+        public async Task AddSoundToConcertAsync(Concert concert, Sound sound, CancellationToken token)
         {
-            _concertBuilder.Date = date;
+            var soundOnConcert = new SoundOnConcert(concert.Id, sound.Id);
+            await _soundOnConcertStorage.AddAsync(soundOnConcert, token);
         }
 
-        // Получить текущий ConcertBuilder
-        public async Task<ConcertBuilder> GetConcertBuilderAsync()
+        // Удаление произведения (звука) с концерта
+        public async Task RemoveSoundFromConcertAsync(Concert concert, Sound sound, CancellationToken token)
         {
-            return _concertBuilder;
+            await _soundOnConcertStorage.DeleteAsync(query => 
+                query.Where(soc => soc.ConcertId == concert.Id && soc.SoundId == sound.Id), token);
         }
     }
 }

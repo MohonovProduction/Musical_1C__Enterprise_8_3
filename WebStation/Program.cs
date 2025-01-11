@@ -7,6 +7,8 @@ using Microsoft.OpenApi.Models;
 using Storage;
 using Presenter;
 using Swashbuckle.AspNetCore.Swagger;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace WebAPI
 {
@@ -30,11 +32,11 @@ namespace WebAPI
                         // Add your storages
                         services.AddScoped<IConcertStorage, ConcertStorage>();
                         services.AddScoped<IInstrumentStorage, InstrumentStorage>();
+                        services.AddScoped<ISoundStorage, SoundStorage>();
                         services.AddScoped<IMusicianInstrumentStorage, MusicianInstrumentStorage>();
                         services.AddScoped<IMusicianOnConcertStorage, MusicianOnConcertStorage>();
                         services.AddScoped<IMusicianStorage, MusicianStorage>();
                         services.AddScoped<ISoundOnConcertStorage, SoundOnConcertStorage>();
-                        services.AddScoped<ISoundStorage, SoundStorage>();
 
                         // Register presenters
                         services.AddScoped<IInstrumentPresenter, InstrumentPresenter>();
@@ -46,7 +48,13 @@ namespace WebAPI
                         services.AddScoped<IConcertPresenter, ConcertPresenter>();
 
                         // Register controllers
-                        services.AddControllers();
+                        services.AddControllers()
+                            .AddJsonOptions(options =>
+                            {
+                                // Configure JSON serialization to handle cyclic references
+                                options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve;
+                                options.JsonSerializerOptions.MaxDepth = 64; // Optionally, you can set a max depth to prevent stack overflow
+                            });
 
                         // Add Swagger
                         services.AddSwaggerGen(c =>

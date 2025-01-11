@@ -1,6 +1,7 @@
 ﻿using Storage;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -21,7 +22,6 @@ namespace Presenter
         {
             _instrumentStorage = new StorageDataBase<Instrument>(dbContext);
         }
-        
 
         // Добавление инструмента
         public async Task AddInstrumentAsync(Guid id, string name, CancellationToken token)
@@ -33,20 +33,20 @@ namespace Presenter
         // Удаление инструмента
         public async Task DeleteInstrumentAsync(Instrument instrument, CancellationToken token)
         {
-            // Если необходимо, реализуйте логику удаления по ID или другим условиям
-            await _instrumentStorage.DeleteAsync($"Id = {instrument.Id}", null, token);
+            // Удаление инструмента по ID с использованием LINQ
+            await _instrumentStorage.DeleteAsync(query => query.Where(i => i.Id == instrument.Id), token);
         }
 
         // Получение всех инструментов
         public async Task<IReadOnlyCollection<Instrument>> GetInstrumentsAsync(CancellationToken token)
         {
-            return await _instrumentStorage.GetListAsync(null, null, token);
+            return await _instrumentStorage.GetListAsync(query => query, token);
         }
 
         // Получение инструмента по ID
         public async Task<Instrument> GetInstrumentByIdAsync(Guid id, CancellationToken token)
         {
-            return await _instrumentStorage.GetSingleAsync($"Id = {id}", null, token);
+            return await _instrumentStorage.GetSingleAsync(query => query.Where(i => i.Id == id), token);
         }
     }
 }

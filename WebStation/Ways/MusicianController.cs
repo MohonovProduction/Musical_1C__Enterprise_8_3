@@ -3,7 +3,6 @@ using Presenter;
 using Storage;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -17,56 +16,101 @@ namespace WebAPI.Controllers
 
         public MusicianController(IMusicianPresenter musicianPresenter)
         {
-            _musicianPresenter = musicianPresenter ?? throw new ArgumentNullException(nameof(musicianPresenter));
+            _musicianPresenter = musicianPresenter;
         }
 
-        [HttpPost("add")]
-        public async Task<IActionResult> AddMusicianAsync([FromBody] AddMusicianRequest request, CancellationToken token)
+        // Получение всех музыкантов с инструментами и концертами
+        [HttpGet]
+        public async Task<IActionResult> GetMusicians(CancellationToken token)
         {
-            if (string.IsNullOrEmpty(request.Name) || string.IsNullOrEmpty(request.LastName) || string.IsNullOrEmpty(request.Surname))
+            try
             {
-                return BadRequest("Name, LastName, and Surname are required.");
+                var musicians = await _musicianPresenter.GetMusiciansAsync(token);
+                return Ok(musicians);
             }
-
-            var instruments = request.Instruments?.Select(i => new Instrument(Guid.NewGuid(), i.Name)).ToList() ?? new List<Instrument>();
-
-            var musician = await _musicianPresenter.AddMusicianAsync(request.Name, request.LastName, request.Surname, instruments, token);
-            return Ok(musician);
-        }
-
-        [HttpDelete("delete/{id}")]
-        public async Task<IActionResult> DeleteMusicianAsync(Guid id, CancellationToken token)
-        {
-            var musicians = await _musicianPresenter.GetMusiciansAsync(token);
-            var musician = musicians.FirstOrDefault(m => m.Id == id);
-
-            if (musician == null)
+            catch (Exception ex)
             {
-                return NotFound("Musician not found.");
+                return StatusCode(500, $"Internal server error: {ex.Message}");
             }
-
-            await _musicianPresenter.DeleteMusicianAsync(musician, token);
-            return Ok("Musician deleted successfully.");
         }
 
-        [HttpGet("all")]
-        public async Task<IActionResult> GetMusiciansAsync(CancellationToken token)
+        // Получение музыканта по ID с инструментами и концертами
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetMusicianById(Guid id, CancellationToken token)
         {
-            var musicians = await _musicianPresenter.GetMusiciansAsync(token);
-            return Ok(musicians);
+            try
+            {
+                var musician = await _musicianPresenter.GetMusicianByIdAsync(id, token);
+                if (musician == null)
+                {
+                    return NotFound($"Musician with ID {id} not found.");
+                }
+
+                return Ok(musician);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+        // Добавление музыканта с инструментами и концертами
+        [HttpPost]
+        public async Task<IActionResult> AddMusician([FromBody] MusicianRequest model, CancellationToken token)
+        {
+            try
+            {
+                if (model == null || model.Instruments == null || model.Concerts == null)
+                {
+                    return BadRequest("Invalid input data.");
+                }
+
+                var musician = await _musicianPresenter.AddMusicianAsync(
+                    model.Name,
+                    model.LastName,
+                    model.Surname,
+                    model.Instruments,
+                    model.Concerts,
+                    token
+                );
+
+                return CreatedAtAction(nameof(GetMusicianById), new { id = musician.Id }, musician);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+        // Удаление музыканта и его связей с инструментами
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteMusician(Guid id, CancellationToken token)
+        {
+            try
+            {
+                var musician = await _musicianPresenter.GetMusicianByIdAsync(id, token);
+                if (musician == null)
+                {
+                    return NotFound($"Musician with ID {id} not found.");
+                }
+
+                await _musicianPresenter.DeleteMusicianAsync(musician, token);
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
         }
     }
 
-    public class AddMusicianRequest
+    // Модель запроса для добавления музыканта
+    public class MusicianRequest
     {
         public string Name { get; set; }
         public string LastName { get; set; }
         public string Surname { get; set; }
-        public List<InstrumentRequest> Instruments { get; set; }
-    }
-
-    public class InstrumentRequest
-    {
-        public string Name { get; set; }
+        public List<Instrument> Instruments { get; set; }
+        public List<Concert> Concerts { get; set; }
     }
 }

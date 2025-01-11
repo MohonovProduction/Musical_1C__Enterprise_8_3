@@ -2,45 +2,46 @@ using Microsoft.AspNetCore.Mvc;
 using Presenter;
 using Storage;
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace WebAPI.Controllers
+namespace WebApi.Controllers
 {
-    [ApiController]
     [Route("api/[controller]")]
-    public class InstrumentController : ControllerBase
+    [ApiController]
+    public class InstrumentsController : ControllerBase
     {
         private readonly IInstrumentPresenter _instrumentPresenter;
 
-        // Constructor with dependency injection for IInstrumentPresenter
-        public InstrumentController(IInstrumentPresenter instrumentPresenter)
+        public InstrumentsController(IInstrumentPresenter instrumentPresenter)
         {
             _instrumentPresenter = instrumentPresenter;
         }
 
-        // GET: api/instrument
+        // GET: api/Instruments
         [HttpGet]
-        public async Task<IActionResult> GetInstruments(CancellationToken cancellationToken)
+        public async Task<ActionResult<IEnumerable<Instrument>>> GetInstruments(CancellationToken token)
         {
             try
             {
-                var instruments = await _instrumentPresenter.GetInstrumentsAsync(cancellationToken);
+                var instruments = await _instrumentPresenter.GetInstrumentsAsync(token);
                 return Ok(instruments);
             }
             catch (Exception ex)
             {
-                return StatusCode(500, ex.Message);
+                return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
 
-        // GET: api/instrument/{id}
+        // GET: api/Instruments/{id}
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetInstrumentById(Guid id, CancellationToken cancellationToken)
+        public async Task<ActionResult<Instrument>> GetInstrumentById(Guid id, CancellationToken token)
         {
             try
             {
-                var instrument = await _instrumentPresenter.GetInstrumentByIdAsync(id, cancellationToken);
+                var instrument = await _instrumentPresenter.GetInstrumentByIdAsync(id, token);
+
                 if (instrument == null)
                 {
                     return NotFound();
@@ -50,49 +51,43 @@ namespace WebAPI.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, ex.Message);
+                return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
 
-        // POST: api/instrument
+        // POST: api/Instruments
         [HttpPost]
-        public async Task<IActionResult> AddInstrument([FromBody] Instrument instrument, CancellationToken cancellationToken)
+        public async Task<ActionResult> AddInstrument(Guid id, [FromBody] string name, CancellationToken token)
         {
-            if (instrument == null || string.IsNullOrEmpty(instrument.Name))
-            {
-                return BadRequest("Invalid instrument data.");
-            }
-
             try
             {
-                // Using Guid.NewGuid() if instrument ID is empty
-                await _instrumentPresenter.AddInstrumentAsync(instrument.Id == Guid.Empty ? Guid.NewGuid() : instrument.Id, instrument.Name, cancellationToken);
-                return CreatedAtAction(nameof(GetInstrumentById), new { id = instrument.Id }, instrument);
+                await _instrumentPresenter.AddInstrumentAsync(id, name, token);
+                return CreatedAtAction(nameof(GetInstrumentById), new { id }, null);
             }
             catch (Exception ex)
             {
-                return StatusCode(500, ex.Message);
+                return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
 
-        // DELETE: api/instrument/{id}
+        // DELETE: api/Instruments/{id}
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteInstrument(Guid id, CancellationToken cancellationToken)
+        public async Task<ActionResult> DeleteInstrument(Guid id, CancellationToken token)
         {
             try
             {
-                var instrument = await _instrumentPresenter.GetInstrumentByIdAsync(id, cancellationToken);
+                var instrument = await _instrumentPresenter.GetInstrumentByIdAsync(id, token);
                 if (instrument == null)
                 {
                     return NotFound();
                 }
 
-                await _instrumentPresenter.DeleteInstrumentAsync(instrument, cancellationToken);
+                await _instrumentPresenter.DeleteInstrumentAsync(instrument, token);
                 return NoContent();
             }
             catch (Exception ex)
             {
-                return StatusCode(500, ex.Message);
+                return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
     }

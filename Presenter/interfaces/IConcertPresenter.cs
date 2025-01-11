@@ -1,30 +1,36 @@
 ﻿using Storage;
+using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 
-namespace Presenter;
-
-public interface IConcertPresenter
+namespace Presenter
 {
-    // Добавление концерта
-    Task<bool> AddConcertAsync(string name, CancellationToken token);
+    public interface IConcertPresenter
+    {
+        // Добавление концерта
+        Task<Concert> AddConcertAsync(string name, string type, string date, 
+            List<Musician> musicians, List<Sound> sounds, CancellationToken token);
 
-    // Удаление концерта
-    Task DeleteConcertAsync(Concert concert, CancellationToken token);
+        // Удаление концерта
+        Task DeleteConcertAsync(Concert concert, CancellationToken token);
 
-    // Получение всех концертов
-    Task<IReadOnlyCollection<Concert>> GetConcertsAsync(CancellationToken token);
+        // Получение всех концертов
+        Task<IReadOnlyCollection<Concert>> GetConcertsAsync(CancellationToken token);
 
-    // Установка типа концерта
-    void SetConcertType(string type);
+        // Получение концерта по ID
+        Task<Concert> GetConcertByIdAsync(Guid id, CancellationToken token);
 
-    // Добавление музыки в концерт
-    void AddMusicToConcert(Sound sound);
+        // Добавление музыканта на концерт
+        Task AddMusicianToConcertAsync(Concert concert, Musician musician, CancellationToken token);
 
-    // Добавление музыканта в концерт
-    void AddMusicianToConcert(Musician musician);
+        // Удаление музыканта с концерта
+        Task RemoveMusicianFromConcertAsync(Concert concert, Musician musician, CancellationToken token);
 
-    // Установка даты концерта
-    void SetConcertDate(string date);
+        // Добавление произведения (звука) на концерт
+        Task AddSoundToConcertAsync(Concert concert, Sound sound, CancellationToken token);
 
-    // Получить текущий ConcertBuilder
-    Task<ConcertBuilder> GetConcertBuilderAsync();
+        // Удаление произведения (звука) с концерта
+        Task RemoveSoundFromConcertAsync(Concert concert, Sound sound, CancellationToken token);
+    }
 }

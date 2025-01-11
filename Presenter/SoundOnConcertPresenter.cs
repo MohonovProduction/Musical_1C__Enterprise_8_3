@@ -1,6 +1,7 @@
 ﻿using Storage;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -12,7 +13,7 @@ namespace Presenter
 
         public SoundOnConcertPresenter(IStorageDataBase<SoundOnConcert> soundOnConcertStorage)
         {
-            _soundOnConcertStorage = soundOnConcertStorage;
+            _soundOnConcertStorage = soundOnConcertStorage ?? throw new ArgumentNullException(nameof(soundOnConcertStorage));
         }
 
         public SoundOnConcertPresenter(ApplicationDbContext dbContext)
@@ -26,27 +27,27 @@ namespace Presenter
         public async Task AddSoundOnConcertAsync(Guid concertId, Guid soundId, CancellationToken token)
         {
             if (concertId == Guid.Empty)
-                throw new ArgumentNullException(nameof(concertId), "Concert ID cannot be empty.");
+                throw new ArgumentException("Concert ID cannot be empty.", nameof(concertId));
             if (soundId == Guid.Empty)
-                throw new ArgumentNullException(nameof(soundId), "Sound ID cannot be empty.");
-            if (token == null)
-                throw new ArgumentNullException(nameof(token), "CancellationToken cannot be null.");
-            
+                throw new ArgumentException("Sound ID cannot be empty.", nameof(soundId));
+
             var soundOnConcert = new SoundOnConcert(concertId, soundId);
-            
-            if (soundOnConcert == null)
-                throw new ArgumentException($"soundOnConcert data cannot be null.");
-            
-            if (_soundOnConcertStorage == null)
-                throw new ArgumentNullException(nameof(_soundOnConcertStorage), "Storage data cannot be null.");
-            
             await _soundOnConcertStorage.AddAsync(soundOnConcert, token);
         }
 
         // Получение всех записей о связях между концертами и звуками
         public async Task<IReadOnlyCollection<SoundOnConcert>> GetSoundOnConcertAsync(CancellationToken token)
         {
-            return await _soundOnConcertStorage.GetListAsync(null, null, token);
+            return await _soundOnConcertStorage.GetListAsync(query => query, token);
+        }
+
+        // Удаление связи между концертом и звуком
+        public async Task DeleteSoundOnConcertAsync(Guid concertId, Guid soundId, CancellationToken token)
+        {
+            await _soundOnConcertStorage.DeleteAsync(
+                query => query.Where(s => s.ConcertId == concertId && s.SoundId == soundId),
+                token
+            );
         }
     }
 }

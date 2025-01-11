@@ -1,16 +1,19 @@
 ﻿namespace Storage;
 
-public interface IStorageDataBase<T>
+public interface IStorageDataBase<T> where T : class
 {
-    public Task<T> GetSingleAsync(string whereClause, object parameters, CancellationToken cancellationToken);
+    // Получение записи по условию
+    Task<T> GetSingleAsync(Func<IQueryable<T>, IQueryable<T>> predicate, CancellationToken cancellationToken);
 
-    public Task<IReadOnlyCollection<T>> GetListAsync(string whereClause, object parameters,
-        CancellationToken cancellationToken);
+    // Получение списка записей по условию
+    Task<IReadOnlyCollection<T>> GetListAsync(Func<IQueryable<T>, IQueryable<T>> predicate, CancellationToken cancellationToken);
 
-    public Task AddAsync(T entity, CancellationToken cancellationToken);
-    
-    public Task DeleteAsync(string whereClause, object parameters, CancellationToken cancellationToken);
+    // Добавление записи в таблицу
+    Task AddAsync(T entity, CancellationToken cancellationToken);
 
-    public Task UpdateAsync(string whereClause, object parameters, T updatedEntity,
-        CancellationToken cancellationToken);
+    // Удаление записей по условию
+    Task DeleteAsync(Func<IQueryable<T>, IQueryable<T>> predicate, CancellationToken cancellationToken);
+
+    // Обновление записи по условию
+    Task UpdateAsync(Func<IQueryable<T>, IQueryable<T>> predicate, T updatedEntity, CancellationToken cancellationToken);
 }

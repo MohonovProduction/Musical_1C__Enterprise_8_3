@@ -19,21 +19,15 @@ namespace Storage
         }
 
         // Получение записи по условию
-        public async Task<T> GetSingleAsync(string whereClause, object parameters, CancellationToken cancellationToken)
+        public async Task<T> GetSingleAsync(Func<IQueryable<T>, IQueryable<T>> predicate, CancellationToken cancellationToken)
         {
-            // Здесь вместо whereClause лучше использовать LINQ для фильтрации.
-            throw new NotImplementedException("Use LINQ to build queries instead of SQL strings.");
+            return await predicate(_dbSet).FirstOrDefaultAsync(cancellationToken);
         }
 
         // Получение списка записей по условию
-        public async Task<IReadOnlyCollection<T>> GetListAsync(string whereClause, object parameters,
-            CancellationToken cancellationToken)
+        public async Task<IReadOnlyCollection<T>> GetListAsync(Func<IQueryable<T>, IQueryable<T>> predicate, CancellationToken cancellationToken)
         {
-            // Если требуется универсальная фильтрация, реализуйте парсер whereClause, но рекомендуется использовать LINQ.
-            if (string.IsNullOrEmpty(whereClause))
-                return await _dbSet.ToListAsync(cancellationToken);
-
-            throw new NotImplementedException("Use LINQ to build queries instead of SQL strings.");
+            return await predicate(_dbSet).ToListAsync(cancellationToken);
         }
 
         // Добавление записи в таблицу
@@ -44,18 +38,22 @@ namespace Storage
         }
 
         // Удаление записей по условию
-        public async Task DeleteAsync(string whereClause, object parameters, CancellationToken cancellationToken)
+        public async Task DeleteAsync(Func<IQueryable<T>, IQueryable<T>> predicate, CancellationToken cancellationToken)
         {
-            // Здесь также лучше использовать LINQ.
-            throw new NotImplementedException("Use LINQ to specify which entities to delete.");
+            var entitiesToDelete = predicate(_dbSet);
+            _dbSet.RemoveRange(entitiesToDelete);
+            await _dbContext.SaveChangesAsync(cancellationToken);
         }
 
         // Обновление записи по условию
-        public async Task UpdateAsync(string whereClause, object parameters, T updatedEntity,
-            CancellationToken cancellationToken)
+        public async Task UpdateAsync(Func<IQueryable<T>, IQueryable<T>> predicate, T updatedEntity, CancellationToken cancellationToken)
         {
-            // EF автоматически отслеживает изменения объектов, поэтому их можно обновить просто изменением свойств.
-            throw new NotImplementedException("Use EF tracking to manage updates.");
+            var entityToUpdate = await predicate(_dbSet).FirstOrDefaultAsync(cancellationToken);
+            if (entityToUpdate != null)
+            {
+                _dbContext.Entry(entityToUpdate).CurrentValues.SetValues(updatedEntity);
+                await _dbContext.SaveChangesAsync(cancellationToken);
+            }
         }
     }
 }
