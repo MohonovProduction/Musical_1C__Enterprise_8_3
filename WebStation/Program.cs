@@ -27,25 +27,25 @@ namespace WebAPI
                     {
                         // Add database context and other dependencies
                         services.AddDbContext<ApplicationDbContext>(options =>
-                            options.UseNpgsql(context.Configuration.GetConnectionString("DefaultConnection")));//??? shit spot
+                            options.UseNpgsql(context.Configuration.GetConnectionString("DatabaseConnection")));
 
                         // Add your storages
-                        services.AddScoped<IConcertStorage, ConcertStorage>(); // scoped ??
-                        services.AddScoped<IInstrumentStorage, InstrumentStorage>();
-                        services.AddScoped<ISoundStorage, SoundStorage>();
-                        services.AddScoped<IMusicianInstrumentStorage, MusicianInstrumentStorage>();
-                        services.AddScoped<IMusicianOnConcertStorage, MusicianOnConcertStorage>();
-                        services.AddScoped<IMusicianStorage, MusicianStorage>();
-                        services.AddScoped<ISoundOnConcertStorage, SoundOnConcertStorage>();
+                        services.AddSingleton<IConcertStorage, ConcertStorage>();
+                        services.AddSingleton<IInstrumentStorage, InstrumentStorage>();
+                        services.AddSingleton<ISoundStorage, SoundStorage>();
+                        services.AddSingleton<IMusicianInstrumentStorage, MusicianInstrumentStorage>();
+                        services.AddSingleton<IMusicianOnConcertStorage, MusicianOnConcertStorage>();
+                        services.AddSingleton<IMusicianStorage, MusicianStorage>();
+                        services.AddSingleton<ISoundOnConcertStorage, SoundOnConcertStorage>();
 
                         // Register presenters
-                        services.AddScoped<IInstrumentPresenter, InstrumentPresenter>();
-                        services.AddScoped<IMusicianInstrumentPresenter, MusicianInstrumentPresenter>();
-                        services.AddScoped<IMusicianOnConcertPresenter, MusicianOnConcertPresenter>();
-                        services.AddScoped<IMusicianPresenter, MusicianPresenter>();
-                        services.AddScoped<ISoundOnConcertPresenter, SoundOnConcertPresenter>();
-                        services.AddScoped<ISoundPresenter, SoundPresenter>();
-                        services.AddScoped<IConcertPresenter, ConcertPresenter>();
+                        services.AddSingleton<IInstrumentPresenter, InstrumentPresenter>();
+                        services.AddSingleton<IMusicianInstrumentPresenter, MusicianInstrumentPresenter>();
+                        services.AddSingleton<IMusicianOnConcertPresenter, MusicianOnConcertPresenter>();
+                        services.AddSingleton<IMusicianPresenter, MusicianPresenter>();
+                        services.AddSingleton<ISoundOnConcertPresenter, SoundOnConcertPresenter>();
+                        services.AddSingleton<ISoundPresenter, SoundPresenter>();
+                        services.AddSingleton<IConcertPresenter, ConcertPresenter>();
 
                         // Register controllers
                         services.AddControllers()
