@@ -19,12 +19,12 @@ namespace WebStation
                 {
                     webBuilder.ConfigureServices((context, services) =>
                     {
-                        // Add database context and other dependencies
-                        services.AddDbContext<ApplicationDbContext>(options =>
-                             options.UseNpgsql(context.Configuration.GetConnectionString("DatabaseConnection")));
-
                         services.AddDbContextFactory<ApplicationDbContext>(options =>
-                            options.UseNpgsql(context.Configuration.GetConnectionString("DatabaseConnection")));
+                        {
+                            options.UseNpgsql(
+                                context.Configuration.GetConnectionString("DefaultConnection"), 
+                                options => options.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery));
+                        });
                         
                         // Storages
                         services.AddSingleton<IConcertStorage, ConcertStorage>();
