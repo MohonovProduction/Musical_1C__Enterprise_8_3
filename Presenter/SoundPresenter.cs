@@ -21,10 +21,7 @@ namespace Presenter
         // Конструктор, принимающий ApplicationDbContext
         public SoundPresenter(IDbContextFactory<ApplicationDbContext> dbContext)
         {
-            using (var ctx = dbContext.CreateDbContext())
-            {
-                _soundStorage = new StorageDataBase<Sound>(ctx);
-            }
+            _soundStorage = new StorageDataBase<Sound>(dbContext);
         }
 
         // Добавление произведения музыки

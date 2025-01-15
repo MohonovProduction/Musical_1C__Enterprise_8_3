@@ -21,10 +21,7 @@ namespace Presenter
         // Constructor expecting ApplicationDbContext
         public InstrumentPresenter(IDbContextFactory<ApplicationDbContext> dbContext)
         {
-            using (var ctx = dbContext.CreateDbContext())
-            {
-                _instrumentStorage = new StorageDataBase<Instrument>(ctx);
-            }
+            _instrumentStorage = new StorageDataBase<Instrument>(dbContext);
         }
 
         // Добавление инструмента

@@ -9,50 +9,68 @@ namespace Storage
 {
     public class StorageDataBase<T> : IStorageDataBase<T> where T : class
     {
-        private readonly DbContext _dbContext;
-        private readonly DbSet<T> _dbSet;
+        private readonly IDbContextFactory<ApplicationDbContext> _dbContext;
 
-        public StorageDataBase(DbContext dbContext)
+        public StorageDataBase(IDbContextFactory<ApplicationDbContext> dbContext)
         {
             _dbContext = dbContext;
-            _dbSet = _dbContext.Set<T>();
         }
 
         // Получение записи по условию
         public async Task<T> GetSingleAsync(Func<IQueryable<T>, IQueryable<T>> predicate, CancellationToken cancellationToken)
         {
-            return await predicate(_dbSet).FirstOrDefaultAsync(cancellationToken);
+            using (var dbContext = _dbContext.CreateDbContext())
+            {
+                var dbSet = dbContext.Set<T>();
+                return await predicate(dbSet).FirstOrDefaultAsync(cancellationToken);
+            }
         }
 
         // Получение списка записей по условию
         public async Task<IReadOnlyCollection<T>> GetListAsync(Func<IQueryable<T>, IQueryable<T>> predicate, CancellationToken cancellationToken)
         {
-            return await predicate(_dbSet).ToListAsync(cancellationToken);
+            using (var dbContext = _dbContext.CreateDbContext())
+            {
+                var dbSet = dbContext.Set<T>();
+                return await predicate(dbSet).ToListAsync(cancellationToken);
+            }
         }
 
         // Добавление записи в таблицу
         public async Task AddAsync(T entity, CancellationToken cancellationToken)
         {
-            await _dbSet.AddAsync(entity, cancellationToken);
-            await _dbContext.SaveChangesAsync(cancellationToken);
+            using (var dbContext = _dbContext.CreateDbContext())
+            {
+                var dbSet = dbContext.Set<T>();
+                await dbSet.AddAsync(entity, cancellationToken);
+                await dbContext.SaveChangesAsync(cancellationToken);
+            }
         }
 
         // Удаление записей по условию
         public async Task DeleteAsync(Func<IQueryable<T>, IQueryable<T>> predicate, CancellationToken cancellationToken)
         {
-            var entitiesToDelete = predicate(_dbSet);
-            _dbSet.RemoveRange(entitiesToDelete);
-            await _dbContext.SaveChangesAsync(cancellationToken);
+            using (var dbContext = _dbContext.CreateDbContext())
+            {
+                var dbSet = dbContext.Set<T>();
+                var entitiesToDelete = predicate(dbSet);
+                dbSet.RemoveRange(entitiesToDelete);
+                await dbContext.SaveChangesAsync(cancellationToken);   
+            }
         }
 
         // Обновление записи по условию
         public async Task UpdateAsync(Func<IQueryable<T>, IQueryable<T>> predicate, T updatedEntity, CancellationToken cancellationToken)
         {
-            var entityToUpdate = await predicate(_dbSet).FirstOrDefaultAsync(cancellationToken);
-            if (entityToUpdate != null)
+            using (var dbContext = _dbContext.CreateDbContext())
             {
-                _dbContext.Entry(entityToUpdate).CurrentValues.SetValues(updatedEntity);
-                await _dbContext.SaveChangesAsync(cancellationToken);
+                var dbSet = dbContext.Set<T>();
+                var entityToUpdate = await predicate(dbSet).FirstOrDefaultAsync(cancellationToken);
+                if (entityToUpdate != null)
+                {
+                    dbContext.Entry(entityToUpdate).CurrentValues.SetValues(updatedEntity);
+                    await dbContext.SaveChangesAsync(cancellationToken);
+                }   
             }
         }
     }

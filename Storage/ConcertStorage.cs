@@ -17,10 +17,12 @@ namespace Storage
         // Добавление концерта
         public async Task AddConcertAsync(Concert concert, CancellationToken token)
         {
-            await using var dbContext = await _dbContext.CreateDbContextAsync(token);
-            token.ThrowIfCancellationRequested();
-            await dbContext.Set<Concert>().AddAsync(concert, token);
-            await dbContext.SaveChangesAsync(token);
+            using (var dbContext = _dbContext.CreateDbContext())
+            {
+                token.ThrowIfCancellationRequested();
+                await dbContext.Set<Concert>().AddAsync(concert, token);
+                await dbContext.SaveChangesAsync(token);
+            }
         }
 
         // Удаление концерта

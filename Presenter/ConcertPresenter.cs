@@ -13,6 +13,7 @@ namespace Presenter
         private readonly IStorageDataBase<Concert> _concertStorage;
         private readonly IStorageDataBase<MusicianOnConcert> _musicianOnConcertStorage;
         private readonly IStorageDataBase<SoundOnConcert> _soundOnConcertStorage;
+        private readonly IDbContextFactory<ApplicationDbContext> _dbContextFactory;
 
         // Конструктор, который принимает IStorageDataBase<Concert>
         public ConcertPresenter(IStorageDataBase<Concert> concertStorage, 
@@ -25,14 +26,12 @@ namespace Presenter
         }
 
         // Конструктор, который принимает ApplicationDbContext
-        public ConcertPresenter(IDbContextFactory<ApplicationDbContext> dbContext)
+        public ConcertPresenter(IDbContextFactory<ApplicationDbContext> dbContextFactory)
         {
-            using (var ctx = dbContext.CreateDbContext())
-            {
-                _concertStorage = new StorageDataBase<Concert>(ctx);
-                _musicianOnConcertStorage = new StorageDataBase<MusicianOnConcert>(ctx);
-                _soundOnConcertStorage = new StorageDataBase<SoundOnConcert>(ctx);   
-            }
+            _concertStorage = new StorageDataBase<Concert>(dbContextFactory);
+            _musicianOnConcertStorage = new StorageDataBase<MusicianOnConcert>(dbContextFactory);
+            _soundOnConcertStorage = new StorageDataBase<SoundOnConcert>(dbContextFactory);
+            _dbContextFactory = dbContextFactory;
         }
 
         // Добавление концерта с музыкантами и произведениями
@@ -60,7 +59,7 @@ namespace Presenter
                 await _soundOnConcertStorage.AddAsync(soundOnConcert, token);
             }
 
-            return concert; // Возвращаем добавленный концерт
+            return concert; // Возвращаем добавленный концерт   
         }
 
         // Удаление концерта и его связей с музыкантами и произведениями

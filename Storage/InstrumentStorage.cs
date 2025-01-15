@@ -17,35 +17,43 @@ namespace Storage
         // Добавление инструмента
         public async Task AddInstrumentAsync(Instrument instrument, CancellationToken token)
         {
-            await using var dbContext = await _dbContext.CreateDbContextAsync(token);
-            token.ThrowIfCancellationRequested();
-            await dbContext.Instruments.AddAsync(instrument, token);
-            await dbContext.SaveChangesAsync(token);
+            using (var dbContext = _dbContext.CreateDbContext())
+            {
+                token.ThrowIfCancellationRequested();
+                await dbContext.Instruments.AddAsync(instrument, token);
+                await dbContext.SaveChangesAsync(token);
+            }
         }
 
         // Удаление инструмента
         public async Task DeleteInstrumentAsync(Instrument instrument, CancellationToken token)
         {
-            await using var dbContext = await _dbContext.CreateDbContextAsync(token);
-            token.ThrowIfCancellationRequested();
-            dbContext.Instruments.Remove(instrument);
-            await dbContext.SaveChangesAsync(token);
+            using (var dbContext = _dbContext.CreateDbContext())
+            {
+                token.ThrowIfCancellationRequested();
+                dbContext.Instruments.Remove(instrument);
+                await dbContext.SaveChangesAsync(token);
+            }
         }
 
         // Получение всех инструментов
         public async Task<IReadOnlyCollection<Instrument>> GetInstrumentsAsync(CancellationToken token)
         {
-            await using var dbContext = await _dbContext.CreateDbContextAsync(token);
-            token.ThrowIfCancellationRequested();
-            return await dbContext.Instruments.ToListAsync(token);
+            using (var dbContext = _dbContext.CreateDbContext())
+            {
+                token.ThrowIfCancellationRequested();
+                return await dbContext.Instruments.ToListAsync(token);
+            }
         }
 
         // Получение инструмента по ID
         public async Task<Instrument> GetInstrumentByIdAsync(Guid id, CancellationToken token)
         {
-            await using var dbContext = await _dbContext.CreateDbContextAsync(token);
-            token.ThrowIfCancellationRequested();
-            return await dbContext.Instruments.FirstOrDefaultAsync(i => i.Id == id, token);
+            using (var dbContext = _dbContext.CreateDbContext())
+            {
+                token.ThrowIfCancellationRequested();
+                return await dbContext.Instruments.FirstOrDefaultAsync(i => i.Id == id, token);
+            }
         }
 
     }

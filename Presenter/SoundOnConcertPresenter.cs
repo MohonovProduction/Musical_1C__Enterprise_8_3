@@ -19,10 +19,7 @@ namespace Presenter
 
         public SoundOnConcertPresenter(IDbContextFactory<ApplicationDbContext> dbContext)
         {
-            using (var ctx = dbContext.CreateDbContext())
-            {
-                _soundOnConcertStorage = new StorageDataBase<SoundOnConcert>(ctx);
-            }
+            _soundOnConcertStorage = new StorageDataBase<SoundOnConcert>(dbContext);
         }
 
         public SoundOnConcertPresenter() {}

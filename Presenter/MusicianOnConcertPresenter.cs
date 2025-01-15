@@ -27,12 +27,9 @@ namespace Presenter
         // Конструктор, который принимает ApplicationDbContext
         public MusicianOnConcertPresenter(IDbContextFactory<ApplicationDbContext> dbContext)
         {
-            using (var ctx = dbContext.CreateDbContext())
-            {
-                _musicianOnConcertStorage = new StorageDataBase<MusicianOnConcert>(ctx);
-                _musicianStorage = new StorageDataBase<Musician>(ctx);
-                _concertStorage = new StorageDataBase<Concert>(ctx);   
-            }
+            _musicianOnConcertStorage = new StorageDataBase<MusicianOnConcert>(dbContext);
+            _musicianStorage = new StorageDataBase<Musician>(dbContext);
+            _concertStorage = new StorageDataBase<Concert>(dbContext);   
         }
 
         // Добавление музыканта на концерт
