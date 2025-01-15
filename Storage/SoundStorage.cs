@@ -7,9 +7,9 @@ namespace Storage
 {
     public class SoundStorage : ISoundStorage
     {
-        private readonly ApplicationDbContext _dbContext;
+        private readonly IDbContextFactory<ApplicationDbContext> _dbContext;
 
-        public SoundStorage(ApplicationDbContext dbContext)
+        public SoundStorage(IDbContextFactory<ApplicationDbContext> dbContext)
         {
             _dbContext = dbContext;
         }
@@ -17,30 +17,40 @@ namespace Storage
         // Добавление музыки (записи)
         public async Task AddMusicAsync(Sound sound, CancellationToken token)
         {
-            token.ThrowIfCancellationRequested();
-            await _dbContext.Sounds.AddAsync(sound, token);
-            await _dbContext.SaveChangesAsync(token);
+            using (var dbContext = _dbContext.CreateDbContext())
+            {
+                token.ThrowIfCancellationRequested();
+                await dbContext.Sounds.AddAsync(sound, token);
+                await dbContext.SaveChangesAsync(token);
+            }
         }
 
         // Удаление музыки (записи)
         public async Task DeleteMusicAsync(Sound sound, CancellationToken token)
         {
-            token.ThrowIfCancellationRequested();
-            var entity = await _dbContext.Sounds
-                .FirstOrDefaultAsync(s => s.Id == sound.Id, token);
-
-            if (entity != null)
+            using (var dbContext = _dbContext.CreateDbContext())
             {
-                _dbContext.Sounds.Remove(entity);
-                await _dbContext.SaveChangesAsync(token);
+                token.ThrowIfCancellationRequested();
+                var entity = await dbContext.Sounds
+                    .FirstOrDefaultAsync(s => s.Id == sound.Id, token);
+
+                if (entity != null)
+                {
+                    dbContext.Sounds.Remove(entity);
+                    await dbContext.SaveChangesAsync(token);
+                }
             }
         }
 
         // Получение всех записей о музыке
         public async Task<IReadOnlyCollection<Sound>> GetAllMusicAsync(CancellationToken token)
         {
-            token.ThrowIfCancellationRequested();
-            return await _dbContext.Sounds.ToListAsync(token);
+            using (var dbContext = _dbContext.CreateDbContext())
+            {
+                token.ThrowIfCancellationRequested();
+                return await dbContext.Sounds.ToListAsync(token);
+            }
         }
+
     }
 }

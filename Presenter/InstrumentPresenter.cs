@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
 namespace Presenter
 {
@@ -18,9 +19,12 @@ namespace Presenter
         }
 
         // Constructor expecting ApplicationDbContext
-        public InstrumentPresenter(ApplicationDbContext dbContext)
+        public InstrumentPresenter(IDbContextFactory<ApplicationDbContext> dbContext)
         {
-            _instrumentStorage = new StorageDataBase<Instrument>(dbContext);
+            using (var ctx = dbContext.CreateDbContext())
+            {
+                _instrumentStorage = new StorageDataBase<Instrument>(ctx);
+            }
         }
 
         // Добавление инструмента

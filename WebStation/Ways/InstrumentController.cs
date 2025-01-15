@@ -13,24 +13,29 @@ namespace WebApi.Controllers
     public class InstrumentsController : ControllerBase
     {
         private readonly IInstrumentPresenter _instrumentPresenter;
+        private readonly IServiceProvider _serviceProvider;
 
-        public InstrumentsController(IInstrumentPresenter instrumentPresenter)
+        public InstrumentsController(IInstrumentPresenter instrumentPresenter, IServiceProvider serviceProvider)
         {
             _instrumentPresenter = instrumentPresenter;
+            _serviceProvider = serviceProvider;
         }
 
         // GET: api/Instruments
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Instrument>>> GetInstruments(CancellationToken token)
         {
-            try
+            using (var scope = _serviceProvider.CreateScope())
             {
-                var instruments = await _instrumentPresenter.GetInstrumentsAsync(token);
-                return Ok(instruments);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { message = ex.Message });
+                try
+                {
+                    var instruments = await _instrumentPresenter.GetInstrumentsAsync(token);
+                    return Ok(instruments);
+                }
+                catch (Exception ex)
+                {
+                    return BadRequest(new { message = ex.Message });
+                }
             }
         }
 
@@ -38,20 +43,23 @@ namespace WebApi.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<Instrument>> GetInstrumentById(Guid id, CancellationToken token)
         {
-            try
+            using (var scope = _serviceProvider.CreateScope())
             {
-                var instrument = await _instrumentPresenter.GetInstrumentByIdAsync(id, token);
-
-                if (instrument == null)
+                try
                 {
-                    return NotFound();
-                }
+                    var instrument = await _instrumentPresenter.GetInstrumentByIdAsync(id, token);
 
-                return Ok(instrument);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { message = ex.Message });
+                    if (instrument == null)
+                    {
+                        return NotFound();
+                    }
+
+                    return Ok(instrument);
+                }
+                catch (Exception ex)
+                {
+                    return BadRequest(new { message = ex.Message });
+                }
             }
         }
 
@@ -59,14 +67,17 @@ namespace WebApi.Controllers
         [HttpPost]
         public async Task<ActionResult> AddInstrument(Guid id, [FromBody] string name, CancellationToken token)
         {
-            try
+            using (var scope = _serviceProvider.CreateScope())
             {
-                await _instrumentPresenter.AddInstrumentAsync(id, name, token);
-                return CreatedAtAction(nameof(GetInstrumentById), new { id }, null);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { message = ex.Message });
+                try
+                {
+                    await _instrumentPresenter.AddInstrumentAsync(id, name, token);
+                    return CreatedAtAction(nameof(GetInstrumentById), new { id }, null);
+                }
+                catch (Exception ex)
+                {
+                    return BadRequest(new { message = ex.Message });
+                }
             }
         }
 
@@ -74,20 +85,23 @@ namespace WebApi.Controllers
         [HttpDelete("{id}")]
         public async Task<ActionResult> DeleteInstrument(Guid id, CancellationToken token)
         {
-            try
+            using (var scope = _serviceProvider.CreateScope())
             {
-                var instrument = await _instrumentPresenter.GetInstrumentByIdAsync(id, token);
-                if (instrument == null)
+                try
                 {
-                    return NotFound();
-                }
+                    var instrument = await _instrumentPresenter.GetInstrumentByIdAsync(id, token);
+                    if (instrument == null)
+                    {
+                        return NotFound();
+                    }
 
-                await _instrumentPresenter.DeleteInstrumentAsync(instrument, token);
-                return NoContent();
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { message = ex.Message });
+                    await _instrumentPresenter.DeleteInstrumentAsync(instrument, token);
+                    return NoContent();
+                }
+                catch (Exception ex)
+                {
+                    return BadRequest(new { message = ex.Message });
+                }
             }
         }
     }

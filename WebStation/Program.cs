@@ -1,16 +1,10 @@
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
+using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
-using Storage;
 using Presenter;
-using Swashbuckle.AspNetCore.Swagger;
-using System.Text.Json;
-using System.Text.Json.Serialization;
+using Storage;
 
-namespace WebAPI
+namespace WebStation
 {
     public class Program
     {
@@ -27,9 +21,12 @@ namespace WebAPI
                     {
                         // Add database context and other dependencies
                         services.AddDbContext<ApplicationDbContext>(options =>
-                            options.UseNpgsql(context.Configuration.GetConnectionString("DatabaseConnection")));
+                             options.UseNpgsql(context.Configuration.GetConnectionString("DatabaseConnection")));
 
-                        // Add your storages
+                        services.AddDbContextFactory<ApplicationDbContext>(options =>
+                            options.UseNpgsql(context.Configuration.GetConnectionString("DatabaseConnection")));
+                        
+                        // Storages
                         services.AddSingleton<IConcertStorage, ConcertStorage>();
                         services.AddSingleton<IInstrumentStorage, InstrumentStorage>();
                         services.AddSingleton<ISoundStorage, SoundStorage>();
@@ -38,7 +35,7 @@ namespace WebAPI
                         services.AddSingleton<IMusicianStorage, MusicianStorage>();
                         services.AddSingleton<ISoundOnConcertStorage, SoundOnConcertStorage>();
 
-                        // Register presenters
+                        // Presenters
                         services.AddSingleton<IInstrumentPresenter, InstrumentPresenter>();
                         services.AddSingleton<IMusicianInstrumentPresenter, MusicianInstrumentPresenter>();
                         services.AddSingleton<IMusicianOnConcertPresenter, MusicianOnConcertPresenter>();
@@ -47,7 +44,7 @@ namespace WebAPI
                         services.AddSingleton<ISoundPresenter, SoundPresenter>();
                         services.AddSingleton<IConcertPresenter, ConcertPresenter>();
 
-                        // Register controllers
+                        // Controllers
                         services.AddControllers()
                             .AddJsonOptions(options =>
                             {

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
 namespace Presenter
 {
@@ -16,9 +17,12 @@ namespace Presenter
             _soundOnConcertStorage = soundOnConcertStorage ?? throw new ArgumentNullException(nameof(soundOnConcertStorage));
         }
 
-        public SoundOnConcertPresenter(ApplicationDbContext dbContext)
+        public SoundOnConcertPresenter(IDbContextFactory<ApplicationDbContext> dbContext)
         {
-            _soundOnConcertStorage = new StorageDataBase<SoundOnConcert>(dbContext);
+            using (var ctx = dbContext.CreateDbContext())
+            {
+                _soundOnConcertStorage = new StorageDataBase<SoundOnConcert>(ctx);
+            }
         }
 
         public SoundOnConcertPresenter() {}

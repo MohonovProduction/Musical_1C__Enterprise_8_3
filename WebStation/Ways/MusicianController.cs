@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using WebAPI.Trains;
 
 namespace WebAPI.Controllers
 {
@@ -14,6 +15,7 @@ namespace WebAPI.Controllers
     {
         private readonly IMusicianPresenter _musicianPresenter;
 
+        // Конструктор: внедрение зависимостей через DI контейнер
         public MusicianController(IMusicianPresenter musicianPresenter)
         {
             _musicianPresenter = musicianPresenter;
@@ -102,15 +104,5 @@ namespace WebAPI.Controllers
                 return BadRequest(new { message = ex.Message });
             }
         }
-    }
-
-    // Модель запроса для добавления музыканта
-    public class MusicianRequest
-    {
-        public string Name { get; set; }
-        public string LastName { get; set; }
-        public string Surname { get; set; }
-        public List<Instrument> Instruments { get; set; }
-        public List<Concert> Concerts { get; set; }
     }
 }

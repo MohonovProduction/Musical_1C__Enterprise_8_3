@@ -3,8 +3,10 @@ using Presenter;
 using Storage;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Internal;
 
 namespace WebApi.Controllers
 {
@@ -13,12 +15,18 @@ namespace WebApi.Controllers
     public class ConcertsController : ControllerBase
     {
         private readonly IConcertPresenter _concertPresenter;
-        private readonly ISoundPresenter _soundPresenter;
         private readonly IMusicianPresenter _musicianPresenter;
+        private readonly ISoundPresenter _soundPresenter;
 
-        public ConcertsController(IConcertPresenter concertPresenter)
+        // Constructor: Dependency Injection
+        public ConcertsController(
+            IConcertPresenter concertPresenter,
+            IMusicianPresenter musicianPresenter,
+            ISoundPresenter soundPresenter)
         {
             _concertPresenter = concertPresenter;
+            _musicianPresenter = musicianPresenter;
+            _soundPresenter = soundPresenter;
         }
 
         // GET: api/Concerts
@@ -63,24 +71,21 @@ namespace WebApi.Controllers
         {
             try
             {
-                // Логика для получения музыкантов из запроса
                 var musicians = request.Musicians.Select(m => new Musician { Id = m.Id }).ToList();
-
-                // Логика для получения произведений из запроса
                 var sounds = request.Sounds.Select(s => new Sound { Id = s.Id }).ToList();
 
                 var concert = await _concertPresenter.AddConcertAsync(
-                    request.Name, 
-                    request.Type, 
-                    request.Date, 
-                    musicians, 
-                    sounds, 
+                    request.Name,
+                    request.Type,
+                    request.Date,
+                    musicians,
+                    sounds,
                     token
                 );
 
                 return CreatedAtAction(nameof(GetConcertById), new { id = concert.Id }, concert);
             }
-            catch (Exception ex) // how to catch and pack all exceptions ? 
+            catch (Exception ex)
             {
                 return BadRequest(new { message = ex.Message });
             }
@@ -160,7 +165,7 @@ namespace WebApi.Controllers
             try
             {
                 var concert = await _concertPresenter.GetConcertByIdAsync(concertId, token);
-                var sound = await _soundPresenter.GetMusicByIdAsync(soundId, token); // Assume a SoundPresenter exists
+                var sound = await _soundPresenter.GetMusicByIdAsync(soundId, token);
 
                 if (concert == null || sound == null)
                 {
@@ -183,7 +188,7 @@ namespace WebApi.Controllers
             try
             {
                 var concert = await _concertPresenter.GetConcertByIdAsync(concertId, token);
-                var sound = await _soundPresenter.GetMusicByIdAsync(soundId, token); // Assume a SoundPresenter exists
+                var sound = await _soundPresenter.GetMusicByIdAsync(soundId, token);
 
                 if (concert == null || sound == null)
                 {

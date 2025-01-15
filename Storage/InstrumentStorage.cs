@@ -7,9 +7,9 @@ namespace Storage
 {
     public class InstrumentStorage : IInstrumentStorage
     {
-        private readonly ApplicationDbContext _dbContext;
+        private readonly IDbContextFactory<ApplicationDbContext> _dbContext;
 
-        public InstrumentStorage(ApplicationDbContext dbContext)
+        public InstrumentStorage(IDbContextFactory<ApplicationDbContext> dbContext)
         {
             _dbContext = dbContext;
         }
@@ -17,31 +17,36 @@ namespace Storage
         // Добавление инструмента
         public async Task AddInstrumentAsync(Instrument instrument, CancellationToken token)
         {
+            await using var dbContext = await _dbContext.CreateDbContextAsync(token);
             token.ThrowIfCancellationRequested();
-            await _dbContext.Instruments.AddAsync(instrument, token);
-            await _dbContext.SaveChangesAsync(token);
+            await dbContext.Instruments.AddAsync(instrument, token);
+            await dbContext.SaveChangesAsync(token);
         }
 
         // Удаление инструмента
         public async Task DeleteInstrumentAsync(Instrument instrument, CancellationToken token)
         {
+            await using var dbContext = await _dbContext.CreateDbContextAsync(token);
             token.ThrowIfCancellationRequested();
-            _dbContext.Instruments.Remove(instrument);
-            await _dbContext.SaveChangesAsync(token);
+            dbContext.Instruments.Remove(instrument);
+            await dbContext.SaveChangesAsync(token);
         }
 
         // Получение всех инструментов
         public async Task<IReadOnlyCollection<Instrument>> GetInstrumentsAsync(CancellationToken token)
         {
+            await using var dbContext = await _dbContext.CreateDbContextAsync(token);
             token.ThrowIfCancellationRequested();
-            return await _dbContext.Instruments.ToListAsync(token);
+            return await dbContext.Instruments.ToListAsync(token);
         }
 
         // Получение инструмента по ID
         public async Task<Instrument> GetInstrumentByIdAsync(Guid id, CancellationToken token)
         {
+            await using var dbContext = await _dbContext.CreateDbContextAsync(token);
             token.ThrowIfCancellationRequested();
-            return await _dbContext.Instruments.FirstOrDefaultAsync(i => i.Id == id, token);
+            return await dbContext.Instruments.FirstOrDefaultAsync(i => i.Id == id, token);
         }
+
     }
 }

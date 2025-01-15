@@ -7,9 +7,9 @@ namespace Storage
 {
     public class MusicianStorage : IMusicianStorage
     {
-        private readonly ApplicationDbContext _dbContext;
+        private readonly IDbContextFactory<ApplicationDbContext> _dbContext;
 
-        public MusicianStorage(ApplicationDbContext dbContext)
+        public MusicianStorage(IDbContextFactory<ApplicationDbContext> dbContext)
         {
             _dbContext = dbContext;
         }
@@ -17,30 +17,40 @@ namespace Storage
         // Добавление музыканта
         public async Task AddMusicianAsync(Musician musician, CancellationToken token)
         {
-            token.ThrowIfCancellationRequested();
-            await _dbContext.Musicians.AddAsync(musician, token);
-            await _dbContext.SaveChangesAsync(token);
+            using (var dbContext = _dbContext.CreateDbContext())
+            {
+                token.ThrowIfCancellationRequested();
+                await dbContext.Musicians.AddAsync(musician, token);
+                await dbContext.SaveChangesAsync(token);
+            }
         }
 
         // Удаление музыканта
         public async Task DeleteMusicianAsync(Musician musician, CancellationToken token)
         {
-            token.ThrowIfCancellationRequested();
-            var entity = await _dbContext.Musicians
-                .FirstOrDefaultAsync(m => m.Id == musician.Id, token);
-
-            if (entity != null)
+            using (var dbContext = _dbContext.CreateDbContext())
             {
-                _dbContext.Musicians.Remove(entity);
-                await _dbContext.SaveChangesAsync(token);
+                token.ThrowIfCancellationRequested();
+                var entity = await dbContext.Musicians
+                    .FirstOrDefaultAsync(m => m.Id == musician.Id, token);
+
+                if (entity != null)
+                {
+                    dbContext.Musicians.Remove(entity);
+                    await dbContext.SaveChangesAsync(token);
+                }
             }
         }
 
         // Получение всех музыкантов
         public async Task<IReadOnlyCollection<Musician>> GetAllMusiciansAsync(CancellationToken token)
         {
-            token.ThrowIfCancellationRequested();
-            return await _dbContext.Musicians.ToListAsync(token);
+            using (var dbContext = _dbContext.CreateDbContext())
+            {
+                token.ThrowIfCancellationRequested();
+                return await dbContext.Musicians.ToListAsync(token);
+            }
         }
+
     }
 }

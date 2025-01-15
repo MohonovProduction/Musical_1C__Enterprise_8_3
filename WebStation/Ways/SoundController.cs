@@ -3,6 +3,7 @@ using Presenter;
 using Storage;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using WebAPI.Trains;
@@ -16,6 +17,7 @@ namespace WebApi.Controllers
         private readonly ISoundPresenter _soundPresenter;
         private readonly ISoundOnConcertPresenter _soundOnConcertPresenter;
 
+        // Конструктор: внедрение зависимостей через DI контейнер
         public SoundsController(ISoundPresenter soundPresenter, ISoundOnConcertPresenter soundOnConcertPresenter)
         {
             _soundPresenter = soundPresenter;

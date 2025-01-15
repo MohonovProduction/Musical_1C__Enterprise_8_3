@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
 namespace Presenter
 {
@@ -24,11 +25,14 @@ namespace Presenter
         }
 
         // Конструктор, который принимает ApplicationDbContext
-        public MusicianOnConcertPresenter(ApplicationDbContext dbContext)
+        public MusicianOnConcertPresenter(IDbContextFactory<ApplicationDbContext> dbContext)
         {
-            _musicianOnConcertStorage = new StorageDataBase<MusicianOnConcert>(dbContext);
-            _musicianStorage = new StorageDataBase<Musician>(dbContext);
-            _concertStorage = new StorageDataBase<Concert>(dbContext);
+            using (var ctx = dbContext.CreateDbContext())
+            {
+                _musicianOnConcertStorage = new StorageDataBase<MusicianOnConcert>(ctx);
+                _musicianStorage = new StorageDataBase<Musician>(ctx);
+                _concertStorage = new StorageDataBase<Concert>(ctx);   
+            }
         }
 
         // Добавление музыканта на концерт
