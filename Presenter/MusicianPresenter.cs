@@ -100,5 +100,10 @@ namespace Presenter
                 token);
         }
 
+        public async Task<IReadOnlyCollection<Musician>> SearchMusiciansByLastNameAsync(string lastName, CancellationToken token)
+        {
+            return await _musicianStorage.GetListAsync(query => 
+                query.Where(m => m.Lastname.Contains(lastName)), token);
+        }
     }
 }

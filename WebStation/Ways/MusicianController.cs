@@ -104,5 +104,23 @@ namespace WebAPI.Controllers
                 return BadRequest(new { message = ex.Message });
             }
         }
+
+        [HttpGet("search")]
+        public async Task<IActionResult> SearchMusicians([FromQuery] string lastName, CancellationToken cancellationToken)
+        {
+            if (string.IsNullOrWhiteSpace(lastName))
+            {
+                return BadRequest("Last name cannot be empty.");
+            }
+
+            var musicians = await _musicianPresenter.SearchMusiciansByLastNameAsync(lastName, cancellationToken);
+
+            if (musicians == null || !musicians.Any())
+            {
+                return NotFound("No musicians found.");
+            }
+
+            return Ok(musicians);
+        }
     }
 }

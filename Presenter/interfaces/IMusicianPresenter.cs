@@ -20,5 +20,7 @@ namespace Presenter
 
         // Получение музыканта по ID
         Task<Musician> GetMusicianByIdAsync(Guid id, CancellationToken token);
+        
+        Task<IReadOnlyCollection<Musician>> SearchMusiciansByLastNameAsync(string lastName, CancellationToken cancellationToken);
     }
 }
