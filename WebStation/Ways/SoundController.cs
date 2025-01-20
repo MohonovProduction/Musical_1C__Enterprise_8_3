@@ -3,109 +3,108 @@ using Presenter;
 using Storage;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using WebAPI.Trains;
+using WebStation.Trains;
 
-namespace WebApi.Controllers
+namespace WebAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class SoundsController : ControllerBase
+    public class SoundController : ControllerBase
     {
         private readonly ISoundPresenter _soundPresenter;
-        private readonly ISoundOnConcertPresenter _soundOnConcertPresenter;
 
-        // Конструктор: внедрение зависимостей через DI контейнер
-        public SoundsController(ISoundPresenter soundPresenter, ISoundOnConcertPresenter soundOnConcertPresenter)
+        public SoundController(ISoundPresenter soundPresenter)
         {
             _soundPresenter = soundPresenter;
-            _soundOnConcertPresenter = soundOnConcertPresenter;
         }
 
-        // GET: api/Sounds
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Sound>>> GetSounds(CancellationToken token)
+        // Добавление нового произведения музыки
+        [HttpPost]
+        public async Task<IActionResult> AddMusic([FromBody] AddSoundRequest request, CancellationToken cancellationToken)
         {
+            if (request == null)
+            {
+                return BadRequest("Invalid music data.");
+            }
+
             try
             {
-                // Получаем список всех звуков
-                var sounds = await _soundPresenter.GetMusicAsync(token);
-
-                // Для каждого звука добавляем информацию о SoundOnConcert
-                foreach (var sound in sounds)
-                {
-                    var soundOnConcerts = await _soundOnConcertPresenter.GetSoundOnConcertAsync(token);
-                    sound.SoundOnConcerts = soundOnConcerts.Where(soc => soc.SoundId == sound.Id).ToList();
-                }
-
-                return Ok(sounds);
+                var sound = await _soundPresenter.AddMusicAsync(request.Name, request.Author, cancellationToken);
+                return CreatedAtAction(nameof(GetMusicById), new { id = sound.Id }, request);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
             }
             catch (Exception ex)
             {
-                return BadRequest(new { message = ex.Message });
+                return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
 
-        // GET: api/Sounds/{id}
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Sound>> GetSoundById(Guid id, CancellationToken token)
+        // Удаление произведения музыки
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteMusic(Guid id, CancellationToken cancellationToken)
         {
             try
             {
-                var sound = await _soundPresenter.GetMusicByIdAsync(id, token);
-
+                var sound = await _soundPresenter.GetMusicByIdAsync(id, cancellationToken);
                 if (sound == null)
                 {
-                    return NotFound();
+                    return NotFound($"Music with ID {id} not found.");
                 }
 
-                // Добавляем информацию о SoundOnConcert для конкретного звука
-                var soundOnConcerts = await _soundOnConcertPresenter.GetSoundOnConcertAsync(token);
-                sound.SoundOnConcerts = soundOnConcerts.Where(soc => soc.SoundId == sound.Id).ToList();
+                await _soundPresenter.DeleteMusicAsync(id, cancellationToken);
+                return NoContent(); // Успешное удаление
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+        // Получение списка всех произведений музыки
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<Sound>>> GetAllMusic(CancellationToken cancellationToken)
+        {
+            try
+            {
+                var musicList = await _soundPresenter.GetMusicAsync(cancellationToken);
+                return Ok(musicList);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+        // Получение произведения музыки по ID
+        [HttpGet("{id}")]
+        public async Task<ActionResult<Sound>> GetMusicById(Guid id, CancellationToken cancellationToken)
+        {
+            try
+            {
+                var sound = await _soundPresenter.GetMusicByIdAsync(id, cancellationToken);
+                if (sound == null)
+                {
+                    return NotFound($"Music with ID {id} not found.");
+                }
 
                 return Ok(sound);
             }
-            catch (Exception ex)
+            catch (ArgumentException ex)
             {
-                return BadRequest(new { message = ex.Message });
-            }
-        }
-
-        // POST: api/Sounds
-        [HttpPost]
-        public async Task<ActionResult> AddSound([FromBody] SoundRequest request, CancellationToken token)
-        {
-            try
-            {
-                var sound = await _soundPresenter.AddMusicAsync(request.Name, request.Author, token);
-                return CreatedAtAction(nameof(GetSoundById), new { id = sound.Id }, null);
+                return BadRequest(ex.Message);
             }
             catch (Exception ex)
             {
-                return BadRequest(new { message = ex.Message });
-            }
-        }
-
-        // DELETE: api/Sounds/{id}
-        [HttpDelete("{id}")]
-        public async Task<ActionResult> DeleteSound(Guid id, CancellationToken token)
-        {
-            try
-            {
-                var sound = await _soundPresenter.GetMusicByIdAsync(id, token);
-                if (sound == null)
-                {
-                    return NotFound();
-                }
-
-                await _soundPresenter.DeleteMusicAsync(id, token);
-                return NoContent();
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { message = ex.Message });
+                return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
     }

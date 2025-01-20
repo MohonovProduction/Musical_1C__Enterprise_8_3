@@ -1,207 +1,214 @@
 using Microsoft.AspNetCore.Mvc;
 using Presenter;
 using Storage;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore.Internal;
+using WebStation.Trains;
 
-namespace WebApi.Controllers
+namespace WebStation.Ways;
+
+[Route("api/[controller]")]
+[ApiController]
+public class ConcertController : ControllerBase
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class ConcertsController : ControllerBase
+    private readonly IConcertPresenter _concertPresenter;
+
+    public ConcertController(IConcertPresenter concertPresenter)
     {
-        private readonly IConcertPresenter _concertPresenter;
-        private readonly IMusicianPresenter _musicianPresenter;
-        private readonly ISoundPresenter _soundPresenter;
+        _concertPresenter = concertPresenter;
+    }
 
-        // Constructor: Dependency Injection
-        public ConcertsController(
-            IConcertPresenter concertPresenter,
-            IMusicianPresenter musicianPresenter,
-            ISoundPresenter soundPresenter)
+    // POST: api/Concert
+    [HttpPost]
+    public async Task<IActionResult> AddConcert([FromBody] AddConcertRequest request, CancellationToken token)
+    {
+        if (request == null)
+            return BadRequest("Invalid concert data.");
+
+        // Преобразуем запрос в данные, необходимые для создания концерта
+        var musicians = new List<Musician>();
+        foreach (var musicianRequest in request.Musicians)
         {
-            _concertPresenter = concertPresenter;
-            _musicianPresenter = musicianPresenter;
-            _soundPresenter = soundPresenter;
+            musicians.Add(new Musician
+            {
+                Id = musicianRequest.Id,
+                Name = musicianRequest.Name,
+                Lastname = musicianRequest.Lastname,
+                Surname = musicianRequest.Surname
+            });
         }
 
-        // GET: api/Concerts
-        [HttpGet("All")]
-        public async Task<ActionResult<IEnumerable<Concert>>> GetConcerts(CancellationToken token)
+        var sounds = new List<Sound>();
+        foreach (var soundRequest in request.Sounds)
         {
-            try
+            sounds.Add(new Sound
             {
-                var concerts = await _concertPresenter.GetConcertsAsync(token);
-                return Ok(concerts);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
+                Id = soundRequest.Id,
+                Name = soundRequest.Name,
+                Author = soundRequest.Author
+            });
         }
 
-        // GET: api/Concerts/{id}
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Concert>> GetConcertById(Guid id, CancellationToken token)
-        {
-            try
-            {
-                var concert = await _concertPresenter.GetConcertByIdAsync(id, token);
+        // Добавляем концерт
+        var concert = await _concertPresenter.AddConcertAsync(request.Name, request.Type, request.Date, musicians, sounds, token);
 
-                if (concert == null)
+        return CreatedAtAction(nameof(GetConcertById), new { id = concert.Id }, concert);
+    }
+
+    // GET: api/Concert/{id}
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetConcertById(Guid id, CancellationToken token)
+    {
+        var concert = await _concertPresenter.GetConcertByIdAsync(id, token);
+
+        if (concert == null)
+            return NotFound();
+
+        var response = new ConcertResponse
+        {
+            Id = concert.Id,
+            Name = concert.Name,
+            Type = concert.Type,
+            Date = concert.Date,
+            Musicians = new List<MusicianResponse>(),
+            Sounds = new List<SoundResponse>()
+        };
+
+        foreach (var musician in concert.MusicianOnConcerts)
+        {
+            response.Musicians.Add(new MusicianResponse
+            {
+                Id = musician.Musician.Id,
+                Name = musician.Musician.Name,
+                LastName = musician.Musician.Lastname,
+                Surname = musician.Musician.Surname
+            });
+        }
+
+        foreach (var sound in concert.SoundOnConcerts)
+        {
+            response.Sounds.Add(new SoundResponse
+            {
+                Id = sound.Sound.Id,
+                Name = sound.Sound.Name,
+                Author = sound.Sound.Author
+            });
+        }
+
+        return Ok(response);
+    }
+
+    // GET: api/Concert
+    [HttpGet]
+    public async Task<IActionResult> GetConcerts(CancellationToken token)
+    {
+        var concerts = await _concertPresenter.GetConcertsAsync(token);
+
+        var response = new List<ConcertResponse>();
+
+        foreach (var concert in concerts)
+        {
+            var concertResponse = new ConcertResponse
+            {
+                Id = concert.Id,
+                Name = concert.Name,
+                Type = concert.Type,
+                Date = concert.Date,
+                Musicians = new List<MusicianResponse>(),
+                Sounds = new List<SoundResponse>()
+            };
+
+            foreach (var musician in concert.MusicianOnConcerts)
+            {
+                concertResponse.Musicians.Add(new MusicianResponse
                 {
-                    return NotFound();
-                }
-
-                return Ok(concert);
+                    Id = musician.Musician.Id,
+                    Name = musician.Musician.Name,
+                    LastName = musician.Musician.Lastname,
+                    Surname = musician.Musician.Surname
+                });
             }
-            catch (Exception ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
-        }
 
-        // POST: api/Concerts
-        [HttpPost]
-        public async Task<ActionResult> AddConcert([FromBody] ConcertRequest request, CancellationToken token)
-        {
-            try
+            foreach (var sound in concert.SoundOnConcerts)
             {
-                var musicians = request.Musicians.Select(m => new Musician { Id = m.Id }).ToList();
-                var sounds = request.Sounds.Select(s => new Sound { Id = s.Id }).ToList();
-
-                var concert = await _concertPresenter.AddConcertAsync(
-                    request.Name,
-                    request.Type,
-                    request.Date,
-                    musicians,
-                    sounds,
-                    token
-                );
-
-                return CreatedAtAction(nameof(GetConcertById), new { id = concert.Id }, concert);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
-        }
-
-        // DELETE: api/Concerts/{id}
-        [HttpDelete("{id}")]
-        public async Task<ActionResult> DeleteConcert(Guid id, CancellationToken token)
-        {
-            try
-            {
-                var concert = await _concertPresenter.GetConcertByIdAsync(id, token);
-                if (concert == null)
+                concertResponse.Sounds.Add(new SoundResponse
                 {
-                    return NotFound();
-                }
+                    Id = sound.Sound.Id,
+                    Name = sound.Sound.Name,
+                    Author = sound.Sound.Author
+                });
+            }
 
-                await _concertPresenter.DeleteConcertAsync(concert, token);
-                return NoContent();
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
+            response.Add(concertResponse);
         }
 
-        // POST: api/Concerts/{concertId}/Musicians/{musicianId}
-        [HttpPost("{concertId}/Musicians/{musicianId}")]
-        public async Task<ActionResult> AddMusicianToConcert(Guid concertId, Guid musicianId, CancellationToken token)
-        {
-            try
-            {
-                var concert = await _concertPresenter.GetConcertByIdAsync(concertId, token);
-                var musician = await _musicianPresenter.GetMusicianByIdAsync(musicianId, token);
+        return Ok(response);
+    }
 
-                if (concert == null || musician == null)
-                {
-                    return NotFound();
-                }
+    // PUT: api/Concert/{id}/musician
+    [HttpPut("{id}/musician")]
+    public async Task<IActionResult> AddMusicianToConcert(Guid id, [FromBody] AddMusicianToConcertRequest request, CancellationToken token)
+    {
+        var concert = await _concertPresenter.GetConcertByIdAsync(id, token);
+        if (concert == null)
+            return NotFound();
 
-                await _concertPresenter.AddMusicianToConcertAsync(concert, musician, token);
-                return NoContent();
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
-            }
-        }
+        var musician = new Musician { Id = request.MusicianId };
+        await _concertPresenter.AddMusicianToConcertAsync(concert, musician, token);
 
-        // DELETE: api/Concerts/{concertId}/Musicians/{musicianId}
-        [HttpDelete("{concertId}/Musicians/{musicianId}")]
-        public async Task<ActionResult> RemoveMusicianFromConcert(Guid concertId, Guid musicianId, CancellationToken token)
-        {
-            try
-            {
-                var concert = await _concertPresenter.GetConcertByIdAsync(concertId, token);
-                var musician = await _musicianPresenter.GetMusicianByIdAsync(musicianId, token);
+        return NoContent();
+    }
 
-                if (concert == null || musician == null)
-                {
-                    return NotFound();
-                }
+    // PUT: api/Concert/{id}/sound
+    [HttpPut("{id}/sound")]
+    public async Task<IActionResult> AddSoundToConcert(Guid id, [FromBody] AddSoundToConcertRequest request, CancellationToken token)
+    {
+        var concert = await _concertPresenter.GetConcertByIdAsync(id, token);
+        if (concert == null)
+            return NotFound();
 
-                await _concertPresenter.RemoveMusicianFromConcertAsync(concert, musician, token);
-                return NoContent();
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
-            }
-        }
+        var sound = new Sound { Id = request.SoundId };
+        await _concertPresenter.AddSoundToConcertAsync(concert, sound, token);
 
-        // POST: api/Concerts/{concertId}/Sounds/{soundId}
-        [HttpPost("{concertId}/Sounds/{soundId}")]
-        public async Task<ActionResult> AddSoundToConcert(Guid concertId, Guid soundId, CancellationToken token)
-        {
-            try
-            {
-                var concert = await _concertPresenter.GetConcertByIdAsync(concertId, token);
-                var sound = await _soundPresenter.GetMusicByIdAsync(soundId, token);
+        return NoContent();
+    }
 
-                if (concert == null || sound == null)
-                {
-                    return NotFound();
-                }
+    // DELETE: api/Concert/{id}
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteConcert(Guid id, CancellationToken token)
+    {
+        var concert = await _concertPresenter.GetConcertByIdAsync(id, token);
+        if (concert == null)
+            return NotFound();
 
-                await _concertPresenter.AddSoundToConcertAsync(concert, sound, token);
-                return NoContent();
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
-            }
-        }
+        await _concertPresenter.DeleteConcertAsync(concert, token);
 
-        // DELETE: api/Concerts/{concertId}/Sounds/{soundId}
-        [HttpDelete("{concertId}/Sounds/{soundId}")]
-        public async Task<ActionResult> RemoveSoundFromConcert(Guid concertId, Guid soundId, CancellationToken token)
-        {
-            try
-            {
-                var concert = await _concertPresenter.GetConcertByIdAsync(concertId, token);
-                var sound = await _soundPresenter.GetMusicByIdAsync(soundId, token);
+        return NoContent();
+    }
 
-                if (concert == null || sound == null)
-                {
-                    return NotFound();
-                }
+    // DELETE: api/Concert/{id}/musician
+    [HttpDelete("{id}/musician")]
+    public async Task<IActionResult> RemoveMusicianFromConcert(Guid id, [FromBody] RemoveMusicianFromConcertRequest request, CancellationToken token)
+    {
+        var concert = await _concertPresenter.GetConcertByIdAsync(id, token);
+        if (concert == null)
+            return NotFound();
 
-                await _concertPresenter.RemoveSoundFromConcertAsync(concert, sound, token);
-                return NoContent();
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
-            }
-        }
+        var musician = new Musician { Id = request.MusicianId };
+        await _concertPresenter.RemoveMusicianFromConcertAsync(concert, musician, token);
+
+        return NoContent();
+    }
+
+    // DELETE: api/Concert/{id}/sound
+    [HttpDelete("{id}/sound")]
+    public async Task<IActionResult> RemoveSoundFromConcert(Guid id, [FromBody] RemoveSoundFromConcertRequest request, CancellationToken token)
+    {
+        var concert = await _concertPresenter.GetConcertByIdAsync(id, token);
+        if (concert == null)
+            return NotFound();
+
+        var sound = new Sound { Id = request.SoundId };
+        await _concertPresenter.RemoveSoundFromConcertAsync(concert, sound, token);
+
+        return NoContent();
     }
 }

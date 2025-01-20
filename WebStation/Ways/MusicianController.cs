@@ -1,13 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
 using Presenter;
 using Storage;
-using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-using WebAPI.Trains;
+using WebStation.Trains;
 
-namespace WebAPI.Controllers
+namespace WebStation.Ways
 {
     [Route("api/[controller]")]
     [ApiController]
@@ -15,112 +11,157 @@ namespace WebAPI.Controllers
     {
         private readonly IMusicianPresenter _musicianPresenter;
 
-        // Конструктор: внедрение зависимостей через DI контейнер
         public MusicianController(IMusicianPresenter musicianPresenter)
         {
             _musicianPresenter = musicianPresenter;
         }
 
-        // Получение всех музыкантов с инструментами и концертами
-        [HttpGet]
-        public async Task<IActionResult> GetMusicians(CancellationToken token)
+        // POST: api/Musician
+        [HttpPost]
+        public async Task<IActionResult> AddMusician([FromBody] AddMusicianRequest request, CancellationToken token)
         {
-            try
+            if (request == null)
+                return BadRequest("Invalid musician data.");
+
+            // Преобразуем запрос в объекты для сохранения
+            var instruments = new List<Instrument>();
+            foreach (var instrumentRequest in request.Instruments)
             {
-                var musicians = await _musicianPresenter.GetMusiciansAsync(token);
-                return Ok(musicians);
+                instruments.Add(new Instrument { Id = instrumentRequest.Id, Name = instrumentRequest.Name });
             }
-            catch (Exception ex)
+
+            var concerts = new List<Concert>();
+            foreach (var concertRequest in request.Concerts)
             {
-                return BadRequest(new { message = ex.Message });
+                concerts.Add(new Concert { Id = concertRequest.Id, Name = concertRequest.Name });
             }
+
+            // Добавляем музыканта
+            var musician = await _musicianPresenter.AddMusicianAsync(request.Name, request.LastName, request.Surname, instruments, concerts, token);
+
+            return CreatedAtAction(nameof(GetMusicianById), new { id = musician.Id }, musician);
         }
 
-        // Получение музыканта по ID с инструментами и концертами
+        // GET: api/Musician/{id}
         [HttpGet("{id}")]
         public async Task<IActionResult> GetMusicianById(Guid id, CancellationToken token)
         {
-            try
-            {
-                var musician = await _musicianPresenter.GetMusicianByIdAsync(id, token);
-                if (musician == null)
-                {
-                    return NotFound($"Musician with ID {id} not found.");
-                }
+            var musician = await _musicianPresenter.GetMusicianByIdAsync(id, token);
 
-                return Ok(musician);
-            }
-            catch (Exception ex)
+            if (musician == null)
+                return NotFound();
+
+            var response = new MusicianResponse
             {
-                return BadRequest(new { message = ex.Message });
+                Id = musician.Id,
+                Name = musician.Name,
+                LastName = musician.Lastname,
+                Surname = musician.Surname,
+                Instruments = new List<InstrumentResponse>(),
+                Concerts = new List<ConcertResponse>()
+            };
+
+            foreach (var musicianInstrument in musician.MusicianInstruments)
+            {
+                response.Instruments.Add(new InstrumentResponse
+                {
+                    Id = musicianInstrument.Instrument.Id,
+                    Name = musicianInstrument.Instrument.Name
+                });
             }
+
+            foreach (var musicianOnConcert in musician.MusicianOnConcerts)
+            {
+                response.Concerts.Add(new ConcertResponse
+                {
+                    Id = musicianOnConcert.Concert.Id,
+                    Name = musicianOnConcert.Concert.Name
+                });
+            }
+
+            return Ok(response);
         }
 
-        // Добавление музыканта с инструментами и концертами
-        [HttpPost]
-        public async Task<IActionResult> AddMusician([FromBody] MusicianRequest model, CancellationToken token)
+        // GET: api/Musician
+        [HttpGet]
+        public async Task<IActionResult> GetMusicians(CancellationToken token)
         {
-            try
+            var musicians = await _musicianPresenter.GetMusiciansAsync(token);
+
+            var response = new List<MusicianResponse>();
+
+            foreach (var musician in musicians)
             {
-                if (model == null || model.Instruments == null || model.Concerts == null)
+                var musicianResponse = new MusicianResponse
                 {
-                    return BadRequest("Invalid input data.");
+                    Id = musician.Id,
+                    Name = musician.Name,
+                    LastName = musician.Lastname,
+                    Surname = musician.Surname,
+                    Instruments = new List<InstrumentResponse>(),
+                    Concerts = new List<ConcertResponse>()
+                };
+
+                foreach (var musicianInstrument in musician.MusicianInstruments)
+                {
+                    musicianResponse.Instruments.Add(new InstrumentResponse
+                    {
+                        Id = musicianInstrument.Instrument.Id,
+                        Name = musicianInstrument.Instrument.Name
+                    });
                 }
 
-                var musician = await _musicianPresenter.AddMusicianAsync(
-                    model.Name,
-                    model.LastName,
-                    model.Surname,
-                    model.Instruments,
-                    model.Concerts,
-                    token
-                );
+                foreach (var musicianOnConcert in musician.MusicianOnConcerts)
+                {
+                    musicianResponse.Concerts.Add(new ConcertResponse
+                    {
+                        Id = musicianOnConcert.Concert.Id,
+                        Name = musicianOnConcert.Concert.Name
+                    });
+                }
 
-                return CreatedAtAction(nameof(GetMusicianById), new { id = musician.Id }, musician);
+                response.Add(musicianResponse);
             }
-            catch (Exception ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
+
+            return Ok(response);
         }
 
-        // Удаление музыканта и его связей с инструментами
+        // GET: api/Musician/search?lastname={lastName}
+        [HttpGet("search")]
+        public async Task<IActionResult> SearchMusiciansByLastName([FromQuery] string lastName, CancellationToken token)
+        {
+            if (string.IsNullOrWhiteSpace(lastName))
+                return BadRequest("Last name is required.");
+
+            var musicians = await _musicianPresenter.SearchMusiciansByLastNameAsync(lastName, token);
+
+            var response = new List<MusicianResponse>();
+
+            foreach (var musician in musicians)
+            {
+                response.Add(new MusicianResponse
+                {
+                    Id = musician.Id,
+                    Name = musician.Name,
+                    LastName = musician.Lastname,
+                    Surname = musician.Surname
+                });
+            }
+
+            return Ok(response);
+        }
+
+        // DELETE: api/Musician/{id}
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteMusician(Guid id, CancellationToken token)
         {
-            try
-            {
-                var musician = await _musicianPresenter.GetMusicianByIdAsync(id, token);
-                if (musician == null)
-                {
-                    return NotFound($"Musician with ID {id} not found.");
-                }
+            var musician = await _musicianPresenter.GetMusicianByIdAsync(id, token);
+            if (musician == null)
+                return NotFound();
 
-                await _musicianPresenter.DeleteMusicianAsync(musician, token);
-                return NoContent();
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
-        }
+            await _musicianPresenter.DeleteMusicianAsync(musician, token);
 
-        [HttpGet("search")]
-        public async Task<IActionResult> SearchMusicians([FromQuery] string lastName, CancellationToken cancellationToken)
-        {
-            if (string.IsNullOrWhiteSpace(lastName))
-            {
-                return BadRequest("Last name cannot be empty.");
-            }
-
-            var musicians = await _musicianPresenter.SearchMusiciansByLastNameAsync(lastName, cancellationToken);
-
-            if (musicians == null || !musicians.Any())
-            {
-                return NotFound("No musicians found.");
-            }
-
-            return Ok(musicians);
+            return NoContent();
         }
     }
 }

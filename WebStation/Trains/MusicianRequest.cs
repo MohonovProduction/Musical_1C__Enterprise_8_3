@@ -1,12 +1,21 @@
-using Storage;
+namespace WebStation.Trains;
 
-namespace WebAPI.Trains;
-
-public record MusicianRequest
+public class MusicianRequest
 {
+    public Guid Id { get; set; } // Id музыканта
+    public string Name { get; set; } // Имя музыканта
+    public string Lastname { get; set; } // Фамилия музыканта
+    public string Surname { get; set; } // Отчество музыканта
+}
+
+public class InstrumentRequest
+{
+    public Guid Id { get; set; }
     public string Name { get; set; }
-    public string LastName { get; set; }
-    public string Surname { get; set; }
-    public List<Instrument> Instruments { get; set; }
-    public List<Concert> Concerts { get; set; }
+}
+
+public class ConcertRequest
+{
+    public Guid Id { get; set; }
+    public string Name { get; set; }
 }

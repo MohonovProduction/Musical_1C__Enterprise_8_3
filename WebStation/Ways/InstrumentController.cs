@@ -1,107 +1,95 @@
 using Microsoft.AspNetCore.Mvc;
 using Presenter;
 using Storage;
-using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
+using WebStation.Trains;
 
-namespace WebApi.Controllers
+namespace WebStation.Ways
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class InstrumentsController : ControllerBase
+    public class InstrumentController : ControllerBase
     {
         private readonly IInstrumentPresenter _instrumentPresenter;
-        private readonly IServiceProvider _serviceProvider;
 
-        public InstrumentsController(IInstrumentPresenter instrumentPresenter, IServiceProvider serviceProvider)
+        public InstrumentController(IInstrumentPresenter instrumentPresenter)
         {
             _instrumentPresenter = instrumentPresenter;
-            _serviceProvider = serviceProvider;
         }
 
-        // GET: api/Instruments
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Instrument>>> GetInstruments(CancellationToken token)
-        {
-            using (var scope = _serviceProvider.CreateScope())
-            {
-                try
-                {
-                    var instruments = await _instrumentPresenter.GetInstrumentsAsync(token);
-                    return Ok(instruments);
-                }
-                catch (Exception ex)
-                {
-                    return BadRequest(new { message = ex.Message });
-                }
-            }
-        }
-
-        // GET: api/Instruments/{id}
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Instrument>> GetInstrumentById(Guid id, CancellationToken token)
-        {
-            using (var scope = _serviceProvider.CreateScope())
-            {
-                try
-                {
-                    var instrument = await _instrumentPresenter.GetInstrumentByIdAsync(id, token);
-
-                    if (instrument == null)
-                    {
-                        return NotFound();
-                    }
-
-                    return Ok(instrument);
-                }
-                catch (Exception ex)
-                {
-                    return BadRequest(new { message = ex.Message });
-                }
-            }
-        }
-
-        // POST: api/Instruments
+        // Добавление нового инструмента
         [HttpPost]
-        public async Task<ActionResult> AddInstrument(Guid id, [FromBody] string name, CancellationToken token)
+        public async Task<IActionResult> AddInstrument([FromBody] AddInstrumentRequest request, CancellationToken cancellationToken)
         {
-            using (var scope = _serviceProvider.CreateScope())
+            if (request == null)
             {
-                try
-                {
-                    await _instrumentPresenter.AddInstrumentAsync(id, name, token);
-                    return CreatedAtAction(nameof(GetInstrumentById), new { id }, null);
-                }
-                catch (Exception ex)
-                {
-                    return BadRequest(new { message = ex.Message });
-                }
+                return BadRequest("Invalid instrument data.");
+            }
+
+            var instrumentId = Guid.NewGuid(); // Генерация уникального идентификатора
+            try
+            {
+                await _instrumentPresenter.AddInstrumentAsync(instrumentId, request.Name, cancellationToken);
+                return CreatedAtAction(nameof(GetInstrumentById), new { id = instrumentId }, request);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
 
-        // DELETE: api/Instruments/{id}
+        // Удаление инструмента
         [HttpDelete("{id}")]
-        public async Task<ActionResult> DeleteInstrument(Guid id, CancellationToken token)
+        public async Task<IActionResult> DeleteInstrument(Guid id, CancellationToken cancellationToken)
         {
-            using (var scope = _serviceProvider.CreateScope())
+            try
             {
-                try
+                var instrument = await _instrumentPresenter.GetInstrumentByIdAsync(id, cancellationToken);
+                if (instrument == null)
                 {
-                    var instrument = await _instrumentPresenter.GetInstrumentByIdAsync(id, token);
-                    if (instrument == null)
-                    {
-                        return NotFound();
-                    }
+                    return NotFound($"Instrument with ID {id} not found.");
+                }
 
-                    await _instrumentPresenter.DeleteInstrumentAsync(instrument, token);
-                    return NoContent();
-                }
-                catch (Exception ex)
+                await _instrumentPresenter.DeleteInstrumentAsync(instrument, cancellationToken);
+                return NoContent(); // Успешное удаление
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+        // Получение списка всех инструментов
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<Instrument>>> GetAllInstruments(CancellationToken cancellationToken)
+        {
+            try
+            {
+                var instruments = await _instrumentPresenter.GetInstrumentsAsync(cancellationToken);
+                return Ok(instruments);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+        // Получение инструмента по ID
+        [HttpGet("{id}")]
+        public async Task<ActionResult<Instrument>> GetInstrumentById(Guid id, CancellationToken cancellationToken)
+        {
+            try
+            {
+                var instrument = await _instrumentPresenter.GetInstrumentByIdAsync(id, cancellationToken);
+                if (instrument == null)
                 {
-                    return BadRequest(new { message = ex.Message });
+                    return NotFound($"Instrument with ID {id} not found.");
                 }
+
+                return Ok(instrument);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
     }

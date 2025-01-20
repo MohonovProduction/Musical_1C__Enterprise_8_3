@@ -1,3 +1,4 @@
+using System.Text.Json;
 using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
@@ -48,9 +49,9 @@ namespace WebStation
                         services.AddControllers()
                             .AddJsonOptions(options =>
                             {
-                                // Configure JSON serialization to handle cyclic references
-                                options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve;
-                                options.JsonSerializerOptions.MaxDepth = 64; // Optionally, you can set a max depth to prevent stack overflow
+                                options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+                                options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+                                options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
                             });
 
                         // Add Swagger
